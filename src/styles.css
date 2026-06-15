@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@source inline("bg-branch-1 bg-branch-2 bg-branch-3 bg-branch-4 bg-branch-5 bg-branch-6 text-warning text-success text-danger");
+@source inline("bg-branch-1/15 bg-branch-2/15 bg-branch-3/15 bg-branch-4/15 bg-branch-5/15 bg-branch-6/15");
+@source inline("hover:bg-branch-1 hover:bg-branch-2 hover:bg-branch-3 hover:bg-branch-4 hover:bg-branch-5 hover:bg-branch-6");
+
+@theme {
+    /* Backgrounds */
+    --color-bg-base: #0d1117;
+    --color-bg-surface: #161b22;
+    --color-bg-elevated: #1c2128;
+    --color-bg-overlay: #21262d;
+
+    /* Borders */
+    --color-border: #30363d;
+    --color-border-subtle: #21262d;
+
+    /* Text */
+    --color-text-primary: #e6edf3;
+    --color-text-secondary: #8b949e;
+    --color-text-muted: #484f58;
+
+    /* Accent */
+    --color-accent: #7c6af7;
+    --color-accent-hover: #9d8fff;
+    --color-accent-subtle: #1e1b3a;
+
+    /* Git Branch Colors */
+    --color-branch-1: #7c6af7;
+    --color-branch-2: #3fb950;
+    --color-branch-3: #f78166;
+    --color-branch-4: #d2a8ff;
+    --color-branch-5: #79c0ff;
+    --color-branch-6: #ffa657;
+
+    /* Status */
+    --color-success: #3fb950;
+    --color-warning: #d29922;
+    --color-danger: #f85149;
+
+    /* Typography */
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+
+    /* Radius */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+}

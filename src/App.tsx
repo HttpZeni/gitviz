@@ -27,7 +27,7 @@ function App() {
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [unpushedCommits, setUnpushedCommits] = useState<CommitInfo[]>([]);
   const repoName = repoPath.split("/").at(-1);
- 
+
   useEffect(() => {
     async function load() {
       const commits = await invoke<CommitInfo[]>("get_commits", { path: repoPath });
@@ -44,15 +44,15 @@ function App() {
   }, [repoPath]);
 
   return (
-    <div className="bg-bg-base w-screen h-screen flex flex-row">
+    <div className="bg-bg-base w-screen h-screen flex flex-row overflow-hidden">
       <div className="w-96 shrink-0 h-full">
-        <LeftSideBar setUnpushedCommits={setUnpushedCommits} repoName={repoName} branches={branches} setCommit={setCommit} repoPath={repoPath} setRepoPath={setRepoPath} setSelectedBranch={setSelectedBranch} selectedBranch={selectedBranch}/>
+        <LeftSideBar setUnpushedCommits={setUnpushedCommits} repoName={repoName} branches={branches} setCommit={setCommit} repoPath={repoPath} setRepoPath={setRepoPath} setSelectedBranch={setSelectedBranch} selectedBranch={selectedBranch} />
       </div>
       <div className="w-full h-full">
-        <MiddlePart commits={commits} setSelectedCommit={setSelectedCommit} repoPath={repoPath} unpushedCommits={unpushedCommits}/>
+        <MiddlePart commits={commits} setSelectedCommit={setSelectedCommit} repoPath={repoPath} unpushedCommits={unpushedCommits} />
       </div>
       <div className="w-96 shrink-0 h-full">
-        <RightSideBar selectedCommit={selectedCommit} repoPath={repoPath} files={files} setFiles={setFiles} setUnpushedCommits={setUnpushedCommits} currentBranch={branches[selectedBranch]}/>
+        <RightSideBar selectedCommit={selectedCommit} repoPath={repoPath} files={files} setFiles={setFiles} setUnpushedCommits={setUnpushedCommits} currentBranch={branches[selectedBranch]} />
       </div>
     </div>
   );

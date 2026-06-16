@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.vercel.com/font/geist-mono/GeistMono-Regular.woff2');
 
 @source inline("text-warning text-success text-danger text-muted text-warning/50 text-success/50 text-danger/50 text-muted/50");
 @source inline("bg-branch-1 bg-branch-2 bg-branch-3 bg-branch-4 bg-branch-5 bg-branch-6 text-warning text-success text-danger");
@@ -6,52 +8,44 @@
 @source inline("hover:bg-branch-1 hover:bg-branch-2 hover:bg-branch-3 hover:bg-branch-4 hover:bg-branch-5 hover:bg-branch-6");
 
 @theme {
-    /* Backgrounds */
-    --color-bg-base: #0d1117;
-    --color-bg-surface: #161b22;
-    --color-bg-elevated: #1c2128;
-    --color-bg-overlay: #21262d;
+    --color-bg-base: #0a0c0f;
+    --color-bg-surface: #0d1117;
+    --color-bg-elevated: #111318;
+    --color-bg-overlay: #161b22;
 
-    /* Borders */
-    --color-border: #30363d;
-    --color-border-subtle: #21262d;
+    --color-border: #21262d;
+    --color-border-subtle: #161b22;
 
-    /* Text */
-    --color-text-primary: #e6edf3;
-    --color-text-secondary: #8b949e;
-    --color-text-muted: #484f58;
+    --color-text-primary: #b8c4cf;
+    --color-text-secondary: #6a737d;
+    --color-text-muted: #3d444d;
 
-    /* Accent */
-    --color-accent: #7c6af7;
-    --color-accent-hover: #9d8fff;
-    --color-accent-subtle: #1e1b3a;
+    --color-accent: #4ec9a0;
+    --color-accent-hover: #6edbb8;
+    --color-accent-subtle: #0a1a14;
 
-    /* Git Branch Colors */
-    --color-branch-1: #7c6af7;
-    --color-branch-2: #3fb950;
-    --color-branch-3: #f78166;
+    --color-branch-1: #4ec9a0;
+    --color-branch-2: #58a6ff;
+    --color-branch-3: #ff7b72;
     --color-branch-4: #d2a8ff;
-    --color-branch-5: #79c0ff;
-    --color-branch-6: #ffa657;
+    --color-branch-5: #ffa657;
+    --color-branch-6: #79c0ff;
 
-    /* Status */
-    --color-success: #3fb950;
-    --color-warning: #d29922;
-    --color-danger: #f85149;
+    --color-success: #4ec9a0;
+    --color-warning: #e3b341;
+    --color-danger: #ff7b72;
 
-    /* Typography */
-    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-    --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+    --font-sans: "IBM Plex Mono", "Cascadia Code", ui-monospace, monospace;
+    --font-mono: "IBM Plex Mono", "Cascadia Code", ui-monospace, monospace;
 
-    /* Radius */
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
+    --radius-sm: 2px;
+    --radius-md: 3px;
+    --radius-lg: 4px;
 }
 
 @layer base {
     * {
         scrollbar-width: thin;
-        scrollbar-color: #30363d transparent;
+        scrollbar-color: #0a0c0f transparent;
     }
 }

@@ -17,14 +17,14 @@ pub struct FileInfo{
 }
 
 #[tauri::command]
-fn git_push(path: String, branch: String) -> Result<(), String>{
+fn git_push(path: String, branch: String, username: String, token: String) -> Result<(), String>{
     let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
     let mut remote = repo.find_remote("origin").map_err(|e| e.message().to_string())?;
     let refspec = format!("refs/heads/{}:refs/heads/{}", branch, branch);
     
     let mut callbacks = git2::RemoteCallbacks::new();
-    callbacks.credentials(|_url, _username_from_url, _allowed_types| {
-        git2::Cred::default()
+    callbacks.credentials(|_url, _username, _allowed| {
+        git2::Cred::userpass_plaintext(&username, &token)
     });
 
     let mut push_options = git2::PushOptions::new();

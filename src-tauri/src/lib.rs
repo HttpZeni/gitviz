@@ -10,9 +10,32 @@ pub struct CommitInfo{
 }
 
 #[derive(Serialize)]
-pub struct CommitFileInfo{
+pub struct FileInfo{
     pub path: String,
     pub status: String,
+}
+
+#[tauri::command]
+fn get_entrys(path: String) -> Result<Vec<FileInfo>, String>{
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let statuses = repo.statuses(None).map_err(|e| e.message().to_string())?;
+    let mut entrys = Vec::new();
+    for entry in statuses.iter(){
+        let path = entry.path().unwrap_or("").to_string();
+        let status = entry.status();
+        let status = if status.contains(git2::Status::INDEX_NEW) || status.contains(git2::Status::INDEX_MODIFIED) {
+            "STAGED"
+        } else if status.contains(git2::Status::WT_NEW) {
+            "UNTRACKED"
+        } else {
+            "MODIFIED"
+        }.to_string();
+        entrys.push(FileInfo{
+            path: path,
+            status: status
+        })
+    }
+    Ok(entrys)
 }
 
 #[tauri::command]
@@ -86,7 +109,7 @@ fn get_commits(path: String) -> Result<Vec<CommitInfo>, String> {
 }
 
 #[tauri::command]
-fn get_commit_files(repo_path: String, hash: String) -> Result<Vec<CommitFileInfo>, String>{
+fn get_commit_files(repo_path: String, hash: String) -> Result<Vec<FileInfo>, String>{
     let repo = Repository::open(&repo_path).map_err(|e| e.message().to_string())?;
     let oid = git2::Oid::from_str(&hash).map_err(|e| e.message().to_string())?;
     let commit = repo.find_commit(oid).map_err(|e| e.message().to_string())?;
@@ -99,7 +122,7 @@ fn get_commit_files(repo_path: String, hash: String) -> Result<Vec<CommitFileInf
     let mut files = Vec::new();
     diff.foreach(&mut |delta, _|{
         if let Some(path) = delta.new_file().path() {
-            files.push(CommitFileInfo {
+            files.push(FileInfo {
                 path: path.to_string_lossy().to_string(),
                 status: match delta.status() {
                     git2::Delta::Added => "ADDED",
@@ -125,7 +148,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![greet, get_commits, get_commit_files, get_branches, get_commits_with_branch])
+        .invoke_handler(tauri::generate_handler![greet, get_commits, get_commit_files, get_branches, get_commits_with_branch, get_entrys])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

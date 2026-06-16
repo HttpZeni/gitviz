@@ -1,11 +1,8 @@
-import { useState } from "react";
 import Branch from "./sub_components/branche";
 import { CommitInfo } from "../App";
 import { open } from "@tauri-apps/plugin-dialog";
 
-export default function LeftSideBar({ repoName, branches, setCommit, repoPath, setRepoPath }: { repoName: string | undefined, branches: string[], setCommit: React.Dispatch<React.SetStateAction<CommitInfo[]>>, repoPath: string, setRepoPath: React.Dispatch<React.SetStateAction<string>> }){
-    const [selectedBranch, setSelectedBranch] = useState<number>(1);
-
+export default function LeftSideBar({ repoName, branches, setCommit, repoPath, setRepoPath, setSelectedBranch, selectedBranch }: { repoName: string | undefined, branches: string[], setCommit: React.Dispatch<React.SetStateAction<CommitInfo[]>>, repoPath: string, setRepoPath: React.Dispatch<React.SetStateAction<string>>, setSelectedBranch: React.Dispatch<React.SetStateAction<number>>, selectedBranch: number}){
     const handleClick = () => {
         async function load(){
             const path = await open({ directory: true, multiple: false });

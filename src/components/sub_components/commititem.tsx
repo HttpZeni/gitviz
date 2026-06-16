@@ -2,8 +2,8 @@ export default function CommitItem({ hash, message, author, date, tags, isSelect
     return (
         <div
             onClick={onClick}
-            className={`w-full flex flex-row gap-3 px-3 py-3 cursor-pointer border-b border-border-subtle transition-all duration-100 
-            ${isSelected ? "bg-bg-elevated" : "hover:bg-bg-surface"}`} >
+            className={`w-full flex flex-row gap-3 px-3 py-3 cursor-pointer border border-border transition-all duration-100 rounded-sm
+            ${isSelected ? "bg-bg-surface" : "hover:bg-bg-surface"}`} >
             <div className="flex flex-col items-center shrink-0 pt-1">
                 <div className={`w-3 h-3 rounded-full border-2 shrink-0 ${isFirst ? "border-accent bg-accent/30" : "border-border bg-transparent"}`} />
             </div>

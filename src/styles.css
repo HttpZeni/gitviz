@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+@source inline("text-warning text-success text-danger text-muted text-warning/50 text-success/50 text-danger/50 text-muted/50");
 @source inline("bg-branch-1 bg-branch-2 bg-branch-3 bg-branch-4 bg-branch-5 bg-branch-6 text-warning text-success text-danger");
 @source inline("bg-branch-1/15 bg-branch-2/15 bg-branch-3/15 bg-branch-4/15 bg-branch-5/15 bg-branch-6/15");
 @source inline("hover:bg-branch-1 hover:bg-branch-2 hover:bg-branch-3 hover:bg-branch-4 hover:bg-branch-5 hover:bg-branch-6");
@@ -46,4 +47,11 @@
     --radius-sm: 4px;
     --radius-md: 6px;
     --radius-lg: 8px;
+}
+
+@layer base {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #30363d transparent;
+    }
 }

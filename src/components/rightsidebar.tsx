@@ -1,18 +1,12 @@
-import { useEffect, useState } from "react";
-import { CommitInfo } from "../App";
+import { useEffect } from "react";
+import { FileInfo, CommitInfo } from "../App";
 import Commit from "./sub_components/commit";
 import { commitStages } from "./sub_components/commit";
 import { invoke } from "@tauri-apps/api/core";
 import { timeAgo } from "../utils";
 
-export interface CommitFileInfo {
-    path: string,
-    status: string,
-}
 
-export default function RightSideBar({ selectedCommit, repoPath }: { selectedCommit: CommitInfo | undefined, repoPath: string }) {
-    const [files, setFiles] = useState<CommitFileInfo[]>([])
-
+export default function RightSideBar({ selectedCommit, repoPath, files, setFiles }: { selectedCommit: CommitInfo | undefined, repoPath: string, files: FileInfo[], setFiles: React.Dispatch<React.SetStateAction<FileInfo[]>> }) {
     function GetCommitStage(status: string): commitStages {
         switch (status) {
             case "ADDED": return commitStages.NEW;
@@ -26,7 +20,7 @@ export default function RightSideBar({ selectedCommit, repoPath }: { selectedCom
 
     useEffect(() => {
         async function load() {
-            const files = await invoke<CommitFileInfo[]>("get_commit_files", { repoPath: repoPath, hash: selectedCommit?.hash });
+            const files = await invoke<FileInfo[]>("get_commit_files", { repoPath: repoPath, hash: selectedCommit?.hash });
             console.log(files);
             setFiles(files);
         }

@@ -1,4 +1,4 @@
-use git2::Repository;
+use git2::{Repository};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -13,6 +13,7 @@ pub struct CommitInfo{
 pub struct FileInfo{
     pub path: String,
     pub status: String,
+    pub is_ignored: bool,
 }
 
 #[tauri::command]
@@ -21,21 +22,52 @@ fn get_entrys(path: String) -> Result<Vec<FileInfo>, String>{
     let statuses = repo.statuses(None).map_err(|e| e.message().to_string())?;
     let mut entrys = Vec::new();
     for entry in statuses.iter(){
-        let path = entry.path().unwrap_or("").to_string();
+        let file_path = entry.path().unwrap_or("").to_string();
         let status = entry.status();
         let status = if status.contains(git2::Status::INDEX_NEW) || status.contains(git2::Status::INDEX_MODIFIED) {
             "STAGED"
         } else if status.contains(git2::Status::WT_NEW) {
             "UNTRACKED"
-        } else {
+        } else if status.contains(git2::Status::WT_MODIFIED) {
             "MODIFIED"
+        } else if status.contains(git2::Status::INDEX_DELETED) || status.contains(git2::Status::WT_DELETED) {
+            "DELETED"
+        } else if is_ignored(&path, &file_path).unwrap_or(false){
+            "IGNORED"
+        } else {
+            "UNKNOWN"
         }.to_string();
+        let ignored = is_ignored(&path, &file_path).unwrap_or(false);
         entrys.push(FileInfo{
-            path: path,
-            status: status
+            path: file_path,
+            status: status,
+            is_ignored: ignored
         })
     }
     Ok(entrys)
+}
+
+#[tauri::command]
+fn is_ignored(path: &str, file_path: &str) -> Result<bool, String>{
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let ignored = repo.is_path_ignored(&file_path).map_err(|e| e.message().to_string())?;
+    Ok(ignored)
+}
+
+#[tauri::command]
+fn git_add(path: String, file_path: String) -> Result<(), String> {
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let mut index = repo.index().map_err(|e| e.message().to_string())?;
+    index.add_path(std::path::Path::new(&file_path)).map_err(|e| e.message().to_string())?;
+    index.write().map_err(|e| e.message().to_string())?;
+    Ok(())
+}
+#[tauri::command]
+fn git_remove(path: String, file_path: String) -> Result<(), String> {
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let head_obj = repo.head().ok().and_then(|h| h.peel_to_commit().ok());
+    repo.reset_default(head_obj.as_ref().map(|c| c.as_object()), [&file_path]).map_err(|e| e.message().to_string())?;
+    Ok(())
 }
 
 #[tauri::command]
@@ -82,6 +114,44 @@ fn get_commits_with_branch(path: String, branch: String) -> Result<Vec<CommitInf
 }
 
 #[tauri::command]
+fn get_unpushed_commits(path: String, branch: String) -> Result<Vec<CommitInfo>, String>{
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let local = repo.revparse_single("HEAD").map_err(|e| e.message().to_string())?.peel_to_commit().map_err(|e| e.message().to_string())?;
+    let remote_ref = format!("origin/{}", branch);
+    let remote = repo.revparse_single(&remote_ref).map_err(|e| e.message().to_string())?;
+    let mut revwalk = repo.revwalk().map_err(|e| e.message().to_string())?;
+    revwalk.push(local.id()).map_err(|e| e.message().to_string())?;
+    revwalk.hide(remote.id()).map_err(|e| e.message().to_string())?;
+    let commits = revwalk
+        .filter_map(|oid| {
+            let oid = oid.ok()?;
+            let hash = oid.to_string();
+            let commit = repo.find_commit(oid).ok()?;
+            let author = commit.author();
+            let author_name = author.name().unwrap_or("Unknown").to_string();
+            let summary = commit.summary_bytes().and_then(|b| std::str::from_utf8(b).ok()).unwrap_or("").to_string();
+            Some(CommitInfo { hash, message: summary, author: author_name, time: commit.time().seconds() })
+        })
+        .collect();
+    Ok(commits)
+}
+
+#[tauri::command]
+fn make_commit(path: String, message: String) -> Result<(), String>{
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let config = repo.config().map_err(|e| e.message().to_string())?;
+    let name = config.get_string("user.name").map_err(|e| e.message().to_string())?;
+    let email = config.get_string("user.email").map_err(|e| e.message().to_string())?;
+    let sig = git2::Signature::now(&name, &email).map_err(|e| e.message().to_string())?;
+    let mut index = repo.index().map_err(|e| e.message().to_string())?;
+    let tree_id = index.write_tree().map_err(|e| e.message().to_string())?;
+    let tree = repo.find_tree(tree_id).map_err(|e| e.message().to_string())?;
+    let parent = repo.head().map_err(|e| e.message().to_string())?.peel_to_commit().map_err(|e| e.message().to_string())?;
+    repo.commit(Some("HEAD"), &sig, &sig, &message, &tree, &[&parent]).map_err(|e| e.message().to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
 fn get_commits(path: String) -> Result<Vec<CommitInfo>, String> {
     let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
     let mut revwalk = repo.revwalk().map_err(|e| e.message().to_string())?;
@@ -109,8 +179,8 @@ fn get_commits(path: String) -> Result<Vec<CommitInfo>, String> {
 }
 
 #[tauri::command]
-fn get_commit_files(repo_path: String, hash: String) -> Result<Vec<FileInfo>, String>{
-    let repo = Repository::open(&repo_path).map_err(|e| e.message().to_string())?;
+fn get_commit_files(path: String, hash: String) -> Result<Vec<FileInfo>, String>{
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
     let oid = git2::Oid::from_str(&hash).map_err(|e| e.message().to_string())?;
     let commit = repo.find_commit(oid).map_err(|e| e.message().to_string())?;
 
@@ -121,15 +191,17 @@ fn get_commit_files(repo_path: String, hash: String) -> Result<Vec<FileInfo>, St
 
     let mut files = Vec::new();
     diff.foreach(&mut |delta, _|{
-        if let Some(path) = delta.new_file().path() {
+        if let Some(file_path) = delta.new_file().path() {
+            let ignored = repo.is_path_ignored(file_path).unwrap_or(false);
             files.push(FileInfo {
-                path: path.to_string_lossy().to_string(),
+                path: file_path.to_string_lossy().to_string(),
                 status: match delta.status() {
                     git2::Delta::Added => "ADDED",
                     git2::Delta::Deleted => "DELETED",
                     git2::Delta::Modified => "MODIFIED",
                     _ => "UNKNOWN",
                 }.to_string(),
+                is_ignored: ignored
             });
         }
         true
@@ -148,7 +220,12 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![greet, get_commits, get_commit_files, get_branches, get_commits_with_branch, get_entrys])
+        .invoke_handler(tauri::generate_handler![
+            greet, get_commits, get_commit_files, 
+            get_branches, get_commits_with_branch, 
+            get_entrys, git_add, git_remove, 
+            is_ignored, make_commit, get_unpushed_commits,
+            ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

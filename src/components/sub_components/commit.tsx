@@ -32,7 +32,7 @@ export default function Commit({stage, dir}: {stage: commitStages, dir: string})
     return(
         <div className="flex flex-row justify-between">
             <p className={`text-${color} text-sm font-mono`}>{stateName}</p>
-            <p className={`text-text-primary text-sm font-sans pl-3`}>{dir}</p>
+            <p className={`text-text-primary text-sm font-sans pl-3 truncate`}>{dir}</p>
         </div>
     )
 }

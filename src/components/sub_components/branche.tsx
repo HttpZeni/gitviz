@@ -1,7 +1,7 @@
 import { CommitInfo } from "../../App";
 import { invoke } from "@tauri-apps/api/core";
 
-export default function Branch({ branchName, index, isSelected, setSelectedBranch, setCommit, repoPath }: { branchName: String, index: number, isSelected: boolean, setSelectedBranch: React.Dispatch<React.SetStateAction<number>>, setCommit: React.Dispatch<React.SetStateAction<CommitInfo[]>>, repoPath: string }) {
+export default function Branch({ branchName, index, isSelected, setSelectedBranch, setCommit, repoPath, setUnpushedCommits }: { branchName: String, index: number, isSelected: boolean, setSelectedBranch: React.Dispatch<React.SetStateAction<number>>, setCommit: React.Dispatch<React.SetStateAction<CommitInfo[]>>, repoPath: string, setUnpushedCommits: React.Dispatch<React.SetStateAction<CommitInfo[]>> }) {
     const color = `branch-${(index % 6) || 6}`;
 
     const handleClick = () => {
@@ -9,6 +9,8 @@ export default function Branch({ branchName, index, isSelected, setSelectedBranc
         async function load(){
             const commits = await invoke<CommitInfo[]>("get_commits_with_branch", { path: repoPath, branch: branchName });
             setCommit(commits);
+            let unpushedCommits = await invoke<CommitInfo[]>("get_unpushed_commits", { path: repoPath, branch: branchName });
+            setUnpushedCommits(unpushedCommits);
         }
         load();
     }

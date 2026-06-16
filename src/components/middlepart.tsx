@@ -30,7 +30,7 @@ export default function MiddlePart({ commits, setSelectedCommit, repoPath, unpus
     useEffect(() => {
         loadEntries()
     }, [repoPath]) 
-
+ 
     return (
         <div className="w-full h-full flex flex-col bg-bg-surface">
                 <div className="w-fit h-16 flex flex-row justify-center items-center shrink-0 gap-2 pt-3">

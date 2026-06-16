@@ -27,7 +27,7 @@ function App() {
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [unpushedCommits, setUnpushedCommits] = useState<CommitInfo[]>([]);
   const repoName = repoPath.split("/").at(-1);
-
+ 
   useEffect(() => {
     async function load() {
       const commits = await invoke<CommitInfo[]>("get_commits", { path: repoPath });

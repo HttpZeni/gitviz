@@ -45,7 +45,7 @@ export default function EntryItem({ repoPath, entryFile, isSelected, onClick, on
                 <p className={`text-sm font-sans truncate flex-1 text-center ${isSelected ? "text-text-primary" : "text-text-secondary"}`}>
                     {entryFile.path}
                 </p>
-                {
+                { 
                     !entryFile.is_ignored && entryFile.status != "DELETED" ? (
                         <div className="h-full flex flex-row gap-2">
                             {

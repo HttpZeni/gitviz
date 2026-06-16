@@ -28,7 +28,7 @@ export default function Commit({stage, dir}: {stage: commitStages, dir: string})
             color = "text-muted";
             stateName = "UNTRACKED";
             break;
-    }
+    } 
     return(
         <div className="flex flex-row justify-between">
             <p className={`text-${color} text-sm font-mono`}>{stateName}</p>

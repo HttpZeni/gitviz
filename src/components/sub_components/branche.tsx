@@ -13,7 +13,7 @@ export default function Branch({ branchName, index, isSelected, setSelectedBranc
             setUnpushedCommits(unpushedCommits);
         }
         load();
-    }
+    } 
 
     return (
         <div onClick={handleClick}

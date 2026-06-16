@@ -23,7 +23,7 @@ export default function RightSideBar({ selectedCommit, repoPath, files, setFiles
     function handleCommitInputChange(e: React.ChangeEvent<HTMLInputElement>){
         setCommitMessage(e?.target.value);
     }
-
+ 
     const handleCommitButton = () => {
         if (!selectedCommit?.hash) return;
         async function load(){

@@ -17,6 +17,24 @@ pub struct FileInfo{
 }
 
 #[tauri::command]
+fn git_push(path: String, branch: String) -> Result<(), String>{
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let mut remote = repo.find_remote("origin").map_err(|e| e.message().to_string())?;
+    let refspec = format!("refs/heads/{}:refs/heads/{}", branch, branch);
+    
+    let mut callbacks = git2::RemoteCallbacks::new();
+    callbacks.credentials(|_url, _username_from_url, _allowed_types| {
+        git2::Cred::default()
+    });
+
+    let mut push_options = git2::PushOptions::new();
+    push_options.remote_callbacks(callbacks);
+
+    remote.push(&[&refspec], Some(&mut push_options)).map_err(|e| e.message().to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
 fn get_entrys(path: String) -> Result<Vec<FileInfo>, String>{
     let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
     let statuses = repo.statuses(None).map_err(|e| e.message().to_string())?;
@@ -225,6 +243,7 @@ pub fn run() {
             get_branches, get_commits_with_branch, 
             get_entrys, git_add, git_remove, 
             is_ignored, make_commit, get_unpushed_commits,
+            git_push
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

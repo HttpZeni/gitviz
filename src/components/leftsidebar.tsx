@@ -1,6 +1,7 @@
 import Branch from "./sub_components/branche";
 import { CommitInfo } from "../App";
 import { open } from "@tauri-apps/plugin-dialog";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function LeftSideBar({ repoName, branches, setCommit, repoPath, setRepoPath, setSelectedBranch, selectedBranch, setUnpushedCommits }: { repoName: string | undefined, branches: string[], setCommit: React.Dispatch<React.SetStateAction<CommitInfo[]>>, repoPath: string, setRepoPath: React.Dispatch<React.SetStateAction<string>>, setSelectedBranch: React.Dispatch<React.SetStateAction<number>>, selectedBranch: number, setUnpushedCommits: React.Dispatch<React.SetStateAction<CommitInfo[]>> }){
     const handleClick = () => {
@@ -9,6 +10,13 @@ export default function LeftSideBar({ repoName, branches, setCommit, repoPath, s
             if (path) {
                 setRepoPath((path as string).replaceAll("\\", "/"));
             }
+        }
+        load();
+    }
+
+    const handlePush = () => {
+        async function load() {
+            await invoke("git_push", { path: repoPath, branch: branches[selectedBranch] });
         }
         load();
     }
@@ -29,7 +37,7 @@ export default function LeftSideBar({ repoName, branches, setCommit, repoPath, s
                 ))}
             </div>
             <div className="w-full h-48 flex items-end justify-center p-3">
-                <button className="w-full h-2/6 bg-accent rounded-sm text-md text-text-primary font-mono font-semibold cursor-pointer">Push</button>
+                <button onClick={handlePush} className="w-full h-2/6 bg-accent rounded-sm text-md text-text-primary font-mono font-semibold cursor-pointer transition-all duration-100 hover:bg-accent-hover">Push</button>
             </div>
         </div>
     );

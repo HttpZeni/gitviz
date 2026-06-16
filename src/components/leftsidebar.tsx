@@ -12,7 +12,7 @@ export default function LeftSideBar({ repoName, branches, setCommit, repoPath, s
         }
         load();
     }
- 
+
     return(
         <div className="w-full h-full bg-bg-surface flex flex-col">
             <div className="w-full h-fit flex flex-col gap-2 p-3">

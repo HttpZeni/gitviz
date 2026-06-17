@@ -37,7 +37,7 @@ export default function LeftSideBar({ repoName, branches, setCommit, repoPath, s
             <div className="w-full h-40 shrink-0 grow-0 flex flex-col justify-between p-3 border-r border-b border-border">
                 <h2 className="text-md text-text-secondary font-mono">REPOSITORY</h2>
                 <p className="text-3xl -mt-2 text-text-primary font-sans font-semibold"><span className="text-accent">/ </span>{repoName != undefined ? `${repoName}` : "None"}</p>
-                <button className="w-full h-8 flex items-center justify-start mt-2 p-2 border border-accent rounded-sm text-md text-text-secondary font-mono cursor-pointer" onClick={handleClick}>Change Repo {'>'} </button>
+                <button className="w-full h-8 flex items-center justify-start mt-2 p-2 border border-accent transition-all duration-100 hover:border-accent-subtle rounded-sm text-sm text-text-secondary font-mono cursor-pointer" onClick={handleClick}>Change Repo {'>'} </button>
             </div>
             <div className="w-full h-full flex flex-col gap-2 p-3 border-r border-border">
                 <h2 className="text-md text-text-secondary font-mono">branches</h2>

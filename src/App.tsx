@@ -23,7 +23,7 @@ function App() {
   const [selectedCommit, setSelectedCommit] = useState<CommitInfo>();
   const [branches, setBranches] = useState<string[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<number>(0);
-  const [repoPath, setRepoPath] = useState<string>("C:/Coding/Rust/zet");
+  const [repoPath, setRepoPath] = useState<string>("");
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [unpushedCommits, setUnpushedCommits] = useState<CommitInfo[]>([]);
   const repoName = repoPath.split("/").at(-1);
@@ -49,7 +49,7 @@ function App() {
         <LeftSideBar setUnpushedCommits={setUnpushedCommits} repoName={repoName} branches={branches} setCommit={setCommit} repoPath={repoPath} setRepoPath={setRepoPath} setSelectedBranch={setSelectedBranch} selectedBranch={selectedBranch} />
       </div>
       <div className="w-full h-full">
-        <MiddlePart commits={commits} setSelectedCommit={setSelectedCommit} repoPath={repoPath} unpushedCommits={unpushedCommits} />
+        <MiddlePart setCommits={setCommit} commits={commits} setSelectedCommit={setSelectedCommit} repoPath={repoPath} unpushedCommits={unpushedCommits} />
       </div>
       <div className="w-96 shrink-0 h-full">
         <RightSideBar selectedCommit={selectedCommit} repoPath={repoPath} files={files} setFiles={setFiles} setUnpushedCommits={setUnpushedCommits} currentBranch={branches[selectedBranch]} />

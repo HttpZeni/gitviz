@@ -8,7 +8,7 @@ import EntryItem from "./sub_components/entryItem";
 
 enum views { HISTORY, STAGING }
 
-export default function MiddlePart({ commits, setSelectedCommit, repoPath, unpushedCommits }: { commits: CommitInfo[], setSelectedCommit: React.Dispatch<React.SetStateAction<CommitInfo | undefined>>, repoPath: string, unpushedCommits: CommitInfo[] }) {
+export default function MiddlePart({ setCommits, commits, setSelectedCommit, repoPath, unpushedCommits }: { setCommits: React.Dispatch<React.SetStateAction<CommitInfo[]>>, commits: CommitInfo[], setSelectedCommit: React.Dispatch<React.SetStateAction<CommitInfo | undefined>>, repoPath: string, unpushedCommits: CommitInfo[] }) {
     const [selected, setSelected] = useState<string>("");
     const [selectedEntry, setSelectedEntry] = useState<FileInfo>();
     const [selectedView, setSelectedView] = useState<views>(views.HISTORY);
@@ -25,6 +25,11 @@ export default function MiddlePart({ commits, setSelectedCommit, repoPath, unpus
     async function loadEntries() {
         const files = await invoke<FileInfo[]>("get_entrys", { path: repoPath });
         setStagingFiles(files);
+    }
+
+    async function loadCommits() {
+        const commits = await invoke<CommitInfo[]>("get_commits", { path: repoPath });
+        setCommits(commits);
     }
 
     useEffect(() => {
@@ -60,6 +65,14 @@ export default function MiddlePart({ commits, setSelectedCommit, repoPath, unpus
                     </div>
                 )
             }
+            <div className="w-full h-fit flex items-center justify-end p-3">
+                <button
+                    onClick={() => { selectedView === views.HISTORY ? loadCommits() : loadEntries()}}
+                    className="w-40 py-2 border border-accent/30 bg-accent-subtle rounded-sm text-sm text-text-primary font-mono
+                        cursor-pointer transition-all duration-100 hover:bg-accent hover:border-accent">
+                    UPDATE
+                </button>
+            </div>
             {
                 unpushedCommits.length > 0 ? (
                     <div className="w-full h-1/4 shrink-0 bg-bg-surface py-3 border-t border-border">

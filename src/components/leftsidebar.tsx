@@ -23,6 +23,15 @@ export default function LeftSideBar({ userName, userToken, setUsername, setToken
         }
         load();
     }
+    const handlePull = () => {
+        async function load() {
+            await invoke("git_pull", { path: repoPath, branch: branches[selectedBranch], username: userName, token: userToken });
+            const initialBranch = branches[selectedBranch] ?? branches[0];
+            let unpushedCommits = await invoke<CommitInfo[]>("get_unpushed_commits", { path: repoPath, branch: initialBranch });
+            setUnpushedCommits(unpushedCommits);
+        }
+        load();
+    }
 
     function handleUsername(e: React.ChangeEvent<HTMLInputElement>) {
         setUsername(e?.target.value);
@@ -56,7 +65,10 @@ export default function LeftSideBar({ userName, userToken, setUsername, setToken
                     outline-none border border-border
                     bg-bg-base rounded-sm text-text-primary font-mono
                     placeholder:text-text-muted text-lg" />
-                <button onClick={handlePush} className="w-full h-10 bg-accent rounded-sm text-md text-text-mute font-mono cursor-pointer transition-all duration-100 hover:bg-accent-hover">Push All</button>
+                <div className="w-full flex flex-row gap-2">
+                    <button onClick={handlePush} className="w-full h-10 bg-accent border border-accent rounded-sm text-md text-text-mute font-mono cursor-pointer transition-all duration-100 hover:bg-accent-subtle hover:text-text-primary">Push All</button>
+                    <button onClick={handlePull} className="w-full h-10 bg-accent border border-accent rounded-sm text-md text-text-mute font-mono cursor-pointer transition-all duration-100 hover:bg-accent-subtle hover:text-text-primary">Pull</button>
+                </div>
             </div>
         </div>
     );

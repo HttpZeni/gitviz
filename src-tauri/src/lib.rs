@@ -167,6 +167,24 @@ fn remove_unpushed_commit(path: String, hash: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn git_pull(path: String, branch: String, username: String, token: String) -> Result<(), String> {
+    let output = std::process::Command::new("git")
+        .args(["pull", "origin", &branch])
+        .env("GIT_USERNAME", &username)
+        .env("GIT_PASSWORD", &token)
+        .env("GIT_ASKPASS", "echo")
+        .current_dir(&path)
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+#[tauri::command]
 fn undo_pushed_commit(path: String, branch: String, username: String, token: String) -> Result<(), String> {
     let reset = std::process::Command::new("git")
         .args(["reset", "--soft", "HEAD~1"])
@@ -331,7 +349,8 @@ pub fn run() {
             get_entrys, git_add, git_remove, 
             is_ignored, make_commit, get_unpushed_commits,
             git_push, git_push_commit, get_pushed_commits,
-            remove_unpushed_commit, undo_pushed_commit
+            remove_unpushed_commit, undo_pushed_commit,
+            git_pull
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

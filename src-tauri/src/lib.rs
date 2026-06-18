@@ -17,21 +17,41 @@ pub struct FileInfo{
 }
 
 #[tauri::command]
-fn git_push(path: String, branch: String, username: String, token: String) -> Result<(), String>{
-    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
-    let mut remote = repo.find_remote("origin").map_err(|e| e.message().to_string())?;
-    let refspec = format!("refs/heads/{}:refs/heads/{}", branch, branch);
-    
-    let mut callbacks = git2::RemoteCallbacks::new();
-    callbacks.credentials(|_url, _username, _allowed| {
-        git2::Cred::userpass_plaintext(&username, &token)
-    });
+fn git_push(path: String, branch: String, username: String, token: String) -> Result<(), String> {
+    let output = std::process::Command::new("git")
+        .args(["push", "origin", &branch])
+        .env("GIT_USERNAME", &username)
+        .env("GIT_PASSWORD", &token)
+        .env("GIT_ASKPASS", "echo")
+        .current_dir(&path)
+        .output()
+        .map_err(|e| e.to_string())?;
 
-    let mut push_options = git2::PushOptions::new();
-    push_options.remote_callbacks(callbacks);
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
 
-    remote.push(&[&refspec], Some(&mut push_options)).map_err(|e| e.message().to_string())?;
-    Ok(())
+#[tauri::command]
+fn git_push_commit(path: String, branch: String, username: String, token: String, commit_hash: String) -> Result<(), String>{
+    let refspec = format!("{}:refs/heads/{}", commit_hash, branch);
+
+    let output = std::process::Command::new("git")
+        .args(["push", "origin", &refspec])
+        .env("GIT_USERNAME", &username)
+        .env("GIT_PASSWORD", &token)
+        .env("GIT_ASKPASS", "echo")
+        .current_dir(&path)
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
 }
 
 #[tauri::command]
@@ -125,6 +145,73 @@ fn get_commits_with_branch(path: String, branch: String) -> Result<Vec<CommitInf
                 author: author_name,
                 time: commit.time().seconds(),
             })
+        })
+        .collect();
+
+    Ok(commits)
+}
+
+#[tauri::command]
+fn remove_unpushed_commit(path: String, hash: String) -> Result<(), String> {
+    let output = std::process::Command::new("git")
+        .args(["reset", &format!("{}~1", hash)])
+        .current_dir(&path)
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+#[tauri::command]
+fn undo_pushed_commit(path: String, branch: String, username: String, token: String) -> Result<(), String> {
+    let reset = std::process::Command::new("git")
+        .args(["reset", "--soft", "HEAD~1"])
+        .current_dir(&path)
+        .output()
+        .map_err(|e| e.to_string())?;
+    
+    if !reset.status.success() {
+        return Err(String::from_utf8_lossy(&reset.stderr).to_string());
+    }
+
+    let push = std::process::Command::new("git")
+        .args(["push", "--force", "origin", &branch])
+        .env("GIT_USERNAME", &username)
+        .env("GIT_PASSWORD", &token)
+        .env("GIT_ASKPASS", "echo")
+        .current_dir(&path)
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if push.status.success() {
+        Ok(())
+    } else {
+        Err(String::from_utf8_lossy(&push.stderr).to_string())
+    }
+}
+
+#[tauri::command]
+fn get_pushed_commits(path: String, branch: String) -> Result<Vec<CommitInfo>, String> {
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let remote_ref = format!("origin/{}", branch);
+    let remote = repo.revparse_single(&remote_ref).map_err(|e| e.message().to_string())?;
+    let mut revwalk = repo.revwalk().map_err(|e| e.message().to_string())?;
+    revwalk.push(remote.id()).map_err(|e| e.message().to_string())?;
+
+    let commits = revwalk
+        .take(50)
+        .filter_map(|oid| {
+            let oid = oid.ok()?;
+            let hash = oid.to_string();
+            let commit = repo.find_commit(oid).ok()?;
+            let author = commit.author();
+            let author_name = author.name().unwrap_or("Unknown").to_string();
+            let summary = commit.summary_bytes().and_then(|b| std::str::from_utf8(b).ok()).unwrap_or("").to_string();
+            Some(CommitInfo { hash, message: summary, author: author_name, time: commit.time().seconds() })
         })
         .collect();
 
@@ -243,7 +330,8 @@ pub fn run() {
             get_branches, get_commits_with_branch, 
             get_entrys, git_add, git_remove, 
             is_ignored, make_commit, get_unpushed_commits,
-            git_push
+            git_push, git_push_commit, get_pushed_commits,
+            remove_unpushed_commit, undo_pushed_commit
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

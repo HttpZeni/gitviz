@@ -1,19 +1,24 @@
 import { invoke } from "@tauri-apps/api/core";
 
-export default function CommitItem({ repoPath, branch, userName, token, hash, message, author, date, tags, isSelected, isFirst, onClick, isLast = false, onAction }: { repoPath: string, branch: string, userName: string, token: string, hash: string; message: string; author: string; date: string; tags: string[]; isSelected: boolean; isFirst: boolean; isLast?: boolean; onClick: () => void; onAction: () => void }) {
+export default function UnpushedCommitItem({ repoPath, branch, userName, token, hash, message, author, date, tags, isSelected, isFirst, onClick, isLast = false, onAction }: 
+    { hash: string; message: string; author: string; date: string; tags: string[]; isSelected: boolean; isFirst: boolean; isLast?: boolean; onClick: () => void; repoPath: string; branch: string; userName: string; token: string; onAction: () => void }) {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        async function load() {
-            try {
-                await invoke("undo_pushed_commit", { path: repoPath, branch: branch, username: userName, token: token });
-                onAction();
-            } catch (err) {
-                console.error("undo error:", JSON.stringify(err));
-            }
+        async function load(){
+            await invoke("git_push_commit", { path: repoPath, branch: branch, username: userName, token: token, commitHash: hash })
+            onAction();
         }
         load();
     }
-
+    const handleRemoveClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        async function load() {
+            await invoke("remove_unpushed_commit", { path: repoPath, hash: hash })
+            onAction();
+        }
+        load();
+    }
+    
     return (
         <div
             onClick={onClick}
@@ -48,11 +53,11 @@ export default function CommitItem({ repoPath, branch, userName, token, hash, me
                     {" · "}{author}{" · "}{date}
                 </p>
             </div>
-
             {
-                isFirst && (
-                    <div className="w-full flex items-center justify-end">
-                        <button onClick={handleClick} className="bg-danger border border-danger rounded py-1 px-2 transition-all duration-100 cursor-pointer font-semibold font-mono hover:bg-transparent hover:text-text-primary">{`<`}-</button>
+                isLast && (
+                    <div className="w-full flex flex-row gap-2 items-center justify-end">
+                        <button onClick={handleRemoveClick} className="bg-danger border border-danger rounded py-1 px-2 transition-all duration-100 cursor-pointer font-semibold font-mono hover:bg-transparent hover:text-text-primary">{`<`}-</button>
+                        <button onClick={handleClick} className="bg-accent border border-accent rounded py-1 px-2 transition-all duration-100 cursor-pointer font-semibold font-mono hover:bg-transparent hover:text-text-primary">-{`>`}</button>
                     </div>
                 )
             }

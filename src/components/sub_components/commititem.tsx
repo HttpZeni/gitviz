@@ -1,61 +1,61 @@
-import { invoke } from "@tauri-apps/api/core";
+import { useEffect, useState } from "react";
+import { CommitInfo, FileInfo } from "../utils/types"
+import { get_commit_files, get_pushed_commits, undo_pushed_commit } from "../utils/utils";
+import { Button } from "./index";
+import { useStore } from "../store";
 
-export default function CommitItem({ repoPath, branch, userName, token, hash, message, author, date, tags, isSelected, isFirst, onClick, isLast = false, onAction }: { repoPath: string, branch: string, userName: string, token: string, hash: string; message: string; author: string; date: string; tags: string[]; isSelected: boolean; isFirst: boolean; isLast?: boolean; onClick: () => void; onAction: () => void }) {
-    const handleClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        async function load() {
-            try {
-                await invoke("undo_pushed_commit", { path: repoPath, branch: branch, username: userName, token: token });
-                onAction();
-            } catch (err) {
-                console.error("undo error:", JSON.stringify(err));
-            }
+interface props{
+    commit: CommitInfo
+    isFirst: boolean
+}
+
+export default function CommitItem({ commit, isFirst }: props){
+    const { setPushedCommits, setSelectedUnpushedCommit } = useStore();
+    const [active, setActive] = useState<boolean>(false);
+    const [files, setFiles] = useState<FileInfo[]>([]);
+
+    useEffect(() => { 
+        setSelectedUnpushedCommit(commit.hash);
+        async function load(){
+            const commit_files = await get_commit_files(commit.hash);
+            setFiles(commit_files);
         }
         load();
+    }, [active === true])
+
+    const HandleRemove = async() => {
+        await undo_pushed_commit();
+        const pushed_commits = await get_pushed_commits();
+        setPushedCommits(pushed_commits);
     }
 
-    return (
-        <div
-            onClick={onClick}
-            className={`w-full flex flex-row gap-3 px-3 py-2 cursor-pointer transition-all duration-100 rounded-sm
-            ${isSelected ? "bg-bg-elevated" : "hover:bg-bg-elevated"}`}>
-
-            <div className="flex flex-col items-center shrink-0 pt-1">
-                <div className={`w-2.5 h-2.5 rounded-full border-2 shrink-0
-                    ${isFirst ? "border-accent bg-accent/30" : "border-border bg-transparent"}`} />
-                {!isLast && <div className="w-px flex-1 bg-border mt-1 min-h-3" />}
+    return(
+        <div onClick={() => setActive(!active)} className={`w-full bg-bg-overlay rounded-md flex flex-col overflow-hidden ${active ? "max-h-96" : "max-h-20"} gap-2 p-3 text-text-primary text-sm border-2 border-border transition-all duration-100 hover:bg-border cursor-pointer`}>
+            <div className="h-full flex flex-row justify-between">
+                <div className="h-full flex flex-col gap-1">
+                    <h1 className="text-text-primary text-md">{commit.message}</h1>
+                    <p className="text-text-secondary text-sm">{commit.hash}</p>
+                    <p className="text-text-muted text-sx">{commit.author} - {commit.time}</p>
+                </div>
+                {
+                    isFirst && (
+                        <div className="flex flex-row gap-2">
+                            <Button value={"<-"} onClick={HandleRemove} className="bg-danger border-danger" />
+                        </div>
+                    )
+                }
             </div>
-
-            <div className="flex flex-col gap-0.5 min-w-0 pb-1">
-                {tags.length > 0 && (
-                    <div className="flex flex-row gap-1.5 flex-wrap mb-0.5">
-                        {tags.map((tag) => (
-                            <span key={tag}
-                                className={`text-[10px] px-1.5 py-0.5 rounded-sm font-mono font-semibold
-                                    ${tag === "HEAD" ? "bg-accent-subtle text-accent" : "bg-bg-overlay text-text-secondary"}`}>
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
-                )}
-
-                <p className={`text-sm font-sans truncate ${isSelected ? "text-text-primary" : "text-text-secondary"}`}>
-                    {message}
-                </p>
-
-                <p className="text-xs font-mono text-text-muted">
-                    <span className="text-accent/70">{hash.slice(0, 7)}</span>
-                    {" · "}{author}{" · "}{date}
-                </p>
-            </div>
-
             {
-                isFirst && (
-                    <div className="w-full flex items-center justify-end">
-                        <button onClick={handleClick} className="bg-danger border border-danger rounded py-1 px-2 transition-all duration-100 cursor-pointer font-semibold font-mono hover:bg-transparent hover:text-text-primary">{`<`}-</button>
+                active && files.length > 0 && (
+                    <div className="w-full flex flex-col gap-2">
+                        {files.map((file, i) => (
+                            <div key={i} className="text-text-primary">
+                                -{'>\t'}{file.path}
+                            </div>
+                        ))}
                     </div>
                 )
             }
         </div>
-    );
+    )
 }

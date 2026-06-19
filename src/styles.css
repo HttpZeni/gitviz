@@ -1,42 +1,43 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-@import url('https://fonts.vercel.com/font/geist-mono/GeistMono-Regular.woff2');
 
 @source inline("text-warning text-success text-danger text-muted text-warning/50 text-success/50 text-danger/50 text-muted/50");
 @source inline("bg-branch-1 bg-branch-2 bg-branch-3 bg-branch-4 bg-branch-5 bg-branch-6 text-warning text-success text-danger");
 @source inline("bg-branch-1/15 bg-branch-2/15 bg-branch-3/15 bg-branch-4/15 bg-branch-5/15 bg-branch-6/15");
 @source inline("hover:bg-branch-1 hover:bg-branch-2 hover:bg-branch-3 hover:bg-branch-4 hover:bg-branch-5 hover:bg-branch-6");
 
+@font-face{
+    font-family: 'IosevkaTerm-Regular';
+    src: url('./assets/fonts/SGr-IosevkaTerm-Regular.ttc')
+}
+
 @theme {
-    --color-bg-base: #0a0c0f;
-    --color-bg-surface: #0d1117;
-    --color-bg-elevated: #111318;
-    --color-bg-overlay: #161b22;
+    --color-bg-base: #080808;
+    --color-bg-surface: #0e0e0e;
+    --color-bg-elevated: #131313;
+    --color-bg-overlay: #181818;
+    --color-border: #222222;
+    --color-border-subtle: #171717;
+    --color-text-primary: #c8c8c8;
+    --color-text-secondary: #585858;
+    --color-text-muted: #2e2e2e;
+    --color-accent: #c8c8c8;
+    --color-accent-hover: #e8e8e8;
+    --color-accent-subtle: #1a1a1a;
+    --color-branch-1: #48bc95;
+    --color-branch-2: #5194e8;
+    --color-branch-3: #e06c75;
+    --color-branch-4: #b48edd;
+    --color-branch-5: #d49a5a;
+    --color-branch-6: #6ab0e8;
+    --color-success: #48bc95;
+    --color-warning: #d49a41;
+    --color-danger: #e06c75;
+    --font-mono: "IosevkaTerm-Regular", ui-monospace, monospace;
 
-    --color-border: #21262d;
-    --color-border-subtle: #161b22;
-
-    --color-text-primary: #b8c4cf;
-    --color-text-secondary: #6a737d;
-    --color-text-muted: #3d444d;
-
-    --color-accent: #4ec9a0;
-    --color-accent-hover: #6edbb8;
-    --color-accent-subtle: #0a1a14;
-
-    --color-branch-1: #4ec9a0;
-    --color-branch-2: #58a6ff;
-    --color-branch-3: #ff7b72;
-    --color-branch-4: #d2a8ff;
-    --color-branch-5: #ffa657;
-    --color-branch-6: #79c0ff;
-
-    --color-success: #4ec9a0;
-    --color-warning: #e3b341;
-    --color-danger: #ff7b72;
-
-    --font-sans: "IBM Plex Mono", "Cascadia Code", ui-monospace, monospace;
-    --font-mono: "IBM Plex Mono", "Cascadia Code", ui-monospace, monospace;
+    --text-sx: 10px;
+    --text-sm: 12px;
+    --text-md: 14px;
+    --text-lg: 18px;
 
     --radius-sm: 2px;
     --radius-md: 3px;
@@ -46,6 +47,7 @@
 @layer base {
     * {
         scrollbar-width: thin;
-        scrollbar-color: #0a0c0f transparent;
+        scrollbar-color: #222222 transparent;
+        font-family: "IosevkaTerm-Regular", monospace;
     }
 }

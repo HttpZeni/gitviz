@@ -14,6 +14,7 @@ pub struct FileInfo{
     pub path: String,
     pub status: String,
     pub is_ignored: bool,
+    pub is_staged: bool,
 }
 
 #[tauri::command]
@@ -38,7 +39,7 @@ fn git_push(path: String, branch: String, username: String, token: String) -> Re
 fn git_push_commit(path: String, branch: String, username: String, token: String, commit_hash: String) -> Result<(), String>{
     let refspec = format!("{}:refs/heads/{}", commit_hash, branch);
 
-    let output = std::process::Command::new("git")
+    let push = std::process::Command::new("git")
         .args(["push", "origin", &refspec])
         .env("GIT_USERNAME", &username)
         .env("GIT_PASSWORD", &token)
@@ -47,11 +48,20 @@ fn git_push_commit(path: String, branch: String, username: String, token: String
         .output()
         .map_err(|e| e.to_string())?;
 
-    if output.status.success() {
-        Ok(())
-    } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    if !push.status.success() {
+        return Err(String::from_utf8_lossy(&push.stderr).to_string());
     }
+
+    let fetch = std::process::Command::new("git")
+        .args(["fetch", "origin"])
+        .env("GIT_USERNAME", &username)
+        .env("GIT_PASSWORD", &token)
+        .env("GIT_ASKPASS", "echo")
+        .current_dir(&path)
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if fetch.status.success() { Ok(()) } else { Err(String::from_utf8_lossy(&fetch.stderr).to_string()) }
 }
 
 #[tauri::command]
@@ -78,8 +88,9 @@ fn get_entrys(path: String) -> Result<Vec<FileInfo>, String>{
         let ignored = is_ignored(&path, &file_path).unwrap_or(false);
         entrys.push(FileInfo{
             path: file_path,
-            status: status,
-            is_ignored: ignored
+            status: status.clone(),
+            is_ignored: ignored,
+            is_staged: status == "STAGED",
         })
     }
     Ok(entrys)
@@ -94,11 +105,17 @@ fn is_ignored(path: &str, file_path: &str) -> Result<bool, String>{
 
 #[tauri::command]
 fn git_add(path: String, file_path: String) -> Result<(), String> {
-    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
-    let mut index = repo.index().map_err(|e| e.message().to_string())?;
-    index.add_path(std::path::Path::new(&file_path)).map_err(|e| e.message().to_string())?;
-    index.write().map_err(|e| e.message().to_string())?;
-    Ok(())
+    let output = std::process::Command::new("git")
+        .args(["add", &file_path])
+        .current_dir(&path)
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
 }
 #[tauri::command]
 fn git_remove(path: String, file_path: String) -> Result<(), String> {
@@ -324,7 +341,8 @@ fn get_commit_files(path: String, hash: String) -> Result<Vec<FileInfo>, String>
                     git2::Delta::Modified => "MODIFIED",
                     _ => "UNKNOWN",
                 }.to_string(),
-                is_ignored: ignored
+                is_ignored: ignored,
+                is_staged: false
             });
         }
         true

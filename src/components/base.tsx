@@ -1,11 +1,20 @@
 import { CommitItem, Button, StageFile } from "./sub_components"
 import { useStore } from "./store";
-import { useState } from "react";
-import { get_entrys, git_unstage_all, git_add_all } from "./utils/utils";
+import { useEffect, useState } from "react";
+import { get_entrys, git_unstage_all, git_add_all, get_commit_files } from "./utils/utils";
 
 export default function Base(){
-    const { pushedCommits, stagedFiles, setStageFiles } = useStore();
+    const { pushedCommits, stagedFiles, setStageFiles, commitFileCache, setCommitFileCache } = useStore();
     const [selected, setSelected] = useState<number>(0);
+
+    useEffect(() => {
+        pushedCommits.forEach(commit => {
+            if (commitFileCache[commit.hash]) return;
+            get_commit_files(commit.hash).then(files => {
+                setCommitFileCache(commit.hash, files);
+            })
+        })
+    },[pushedCommits])
 
     function handleClick (index: number) {
         setSelected(index);

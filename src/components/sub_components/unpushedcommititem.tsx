@@ -49,8 +49,8 @@ export default function UnpushedCommitItem({ commit, isLast }: props){
                 {
                     isLast && (
                         <div className="flex flex-row gap-2">
-                            <Button value={"<-"} onClick={HandleRemove} className="bg-danger border-danger" />
-                            <Button value={"->"} onClick={HandlePush} className="bg-success border-success" />
+                            <Button value={"<-"} onClick={HandleRemove} className="bg-danger border-danger hover:bg-transparent" />
+                            <Button value={"->"} onClick={HandlePush} className="bg-success border-success hover:bg-transparent" />
                         </div>
                     )
                 }

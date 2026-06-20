@@ -11,6 +11,7 @@ export default function Bottom(){
         await make_commit(commitMessage);
         const unpushed_commits = await get_unpushed_commits();
         setUnpushedCommits(unpushed_commits);
+        setCommitMessage("");
     }
     const HandlePush = async () => {
         await git_push_commit(selectedUnpushedCommit);

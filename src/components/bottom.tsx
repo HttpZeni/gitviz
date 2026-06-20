@@ -8,21 +8,21 @@ export default function Bottom(){
     const [commitMessage, setCommitMessage] = useState<string>("");
 
     const HandleCommit = async() => {
-        setStatusMessage("Making commit..");
+        setStatusMessage({ message: "Making commit..", destroyAuto: false});
         await make_commit(commitMessage);
         const unpushed_commits = await get_unpushed_commits();
         setUnpushedCommits(unpushed_commits);
         setCommitMessage("");
-        setStatusMessage("Made commit!");
+        setStatusMessage({ message: "Made commit!", destroyAuto: true });
     }
     const HandlePush = async () => {
-        setStatusMessage("Pushing commit > " + selectedUnpushedCommit);
+        setStatusMessage({ message: "Pushing commit > " + selectedUnpushedCommit, destroyAuto: false });
         await git_push_commit(selectedUnpushedCommit);
         const unpushed_commits = await get_unpushed_commits();
         const pushed_commits = await get_pushed_commits();
         setUnpushedCommits(unpushed_commits);
         setPushedCommits(pushed_commits);
-        setStatusMessage("Pushed commit > " + selectedUnpushedCommit);
+        setStatusMessage({ message: "Pushed commit > " + selectedUnpushedCommit, destroyAuto: true });
     }
     const HandlePull = async () => {
 

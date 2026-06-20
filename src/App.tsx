@@ -9,8 +9,8 @@ function App() {
   const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, setStageFiles, statusMessage, setStatusMessage } = useStore();  
 
   useEffect(() => {
-    if (!statusMessage) return;
-    const timeout = setTimeout(() => setStatusMessage(""), 3000);
+    if (!statusMessage || !statusMessage.destroyAuto) return;
+    const timeout = setTimeout(() => setStatusMessage({message: "", destroyAuto: false}), 3000);
     return () => clearTimeout(timeout);
   }, [statusMessage])
 
@@ -41,7 +41,7 @@ function App() {
         <Bottom/>
       </div>
       <div className="fixed font-mono-bold bg-bg-elevated bottom-0 w-full h-5 text-text-muted text-xs px-3 items-center tracking-widest">
-        {statusMessage}
+        {statusMessage.message}
       </div>
     </div>
   );

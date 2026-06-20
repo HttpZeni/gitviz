@@ -14,3 +14,8 @@ export interface CommitInfo {
     author: string;
     time: number;
 }
+
+export interface StatusMessage {
+    message: string;
+    destroyAuto: boolean;
+}

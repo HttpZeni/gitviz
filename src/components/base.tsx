@@ -10,10 +10,10 @@ export default function Base(){
     useEffect(() => {
         const pending = pushedCommits.filter(c => !commitFileCache[c.hash]);
         if (pending.length === 0) return;
-        setStatusMessage("Loading commits..");
+        setStatusMessage({message: "Loading commits..", destroyAuto: false});
         Promise.all(pending.map(commit =>
             get_commit_files(commit.hash).then(files => setCommitFileCache(commit.hash, files))
-        )).then(() => setStatusMessage("Loaded commits!"));
+        )).then(() => setStatusMessage({ message: "Loaded commits!", destroyAuto: true }));
     }, [pushedCommits])
 
     function handleClick (index: number) {
@@ -21,19 +21,19 @@ export default function Base(){
     }
 
     const selectAll = async () => {
-        setStatusMessage("Selecting all staged file..");
+        setStatusMessage({ message: "Selecting all staged file..", destroyAuto: false });
         await git_add_all();
         const staged_files = await get_entrys();
         setStageFiles(staged_files);
-        setStatusMessage("Staged all files!");
+        setStatusMessage({ message: "Staged all files!", destroyAuto: true });
     }
 
     const deselectAll = async () => {
-        setStatusMessage("Deselecting all files..");
+        setStatusMessage({ message: "Deselecting all files..", destroyAuto: false });
         await git_unstage_all();
         const staged_files = await get_entrys();
         setStageFiles(staged_files);
-        setStatusMessage("Deselected all files!");
+        setStatusMessage({ message: "Deselected all files!", destroyAuto: true });
     }
 
     return(

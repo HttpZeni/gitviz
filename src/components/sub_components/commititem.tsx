@@ -52,7 +52,7 @@ export default function CommitItem({ commit, isFirst }: props){
                     <div className="w-full flex flex-col gap-2">
                         {files.map((file, i) => {
                             return(
-                                <div key={i} className="text-text-primary">
+                                <div key={i} className="text-text-primary hover:bg-accent-subtle/75 rounded-lg p-1">
                                     <p>-{'>\t'}<span className={`${stageConfig[file.status].text}`}>{stageConfig[file.status].short}</span>{'\t' + file.path}</p>
                                 </div>
                             )

@@ -9,6 +9,10 @@
     font-family: 'IosevkaTerm-Regular';
     src: url('./assets/fonts/SGr-IosevkaTerm-Regular.ttc')
 }
+@font-face{
+    font-family: 'IosevkaTerm-Bold';
+    src: url('./assets/fonts/SGr-IosevkaTerm-ExtraBold.ttc')
+}
 
 @theme {
     --color-bg-base: #080808;
@@ -33,6 +37,7 @@
     --color-warning: #d49a41;
     --color-danger: #e06c75;
     --font-mono: "IosevkaTerm-Regular", ui-monospace, monospace;
+    --font-mono-bold: "IosevkaTerm-Regular", ui-monospace, monospace;
 
     --text-sx: 10px;
     --text-sm: 12px;

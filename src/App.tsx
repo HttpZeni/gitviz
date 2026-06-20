@@ -1,12 +1,21 @@
 import { get_pushed_commits, get_branches, get_unpushed_commits, get_entrys } from "./components/utils/utils";
 import { useStore } from "./components/store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import TopBar from "./components/topbar";
 import Base from "./components/base";
 import Bottom from "./components/bottom";
 
 function App() {
-  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, setStageFiles } = useStore();
+  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, setStageFiles, statusMessage, setStatusMessage } = useStore();  
+  const [lastMessage, setLastMessage] = useState<string>("");
+
+  useEffect(() => {
+    setLastMessage(statusMessage);
+    const interval = setInterval(() => {
+      if (statusMessage === lastMessage) setStatusMessage("");
+    })
+    return () => clearInterval(interval);
+  }, [statusMessage])
 
   useEffect(() => {
     async function load() {
@@ -31,8 +40,11 @@ function App() {
       <div className="w-full h-full overflow-y-scroll">
         <Base/>
       </div>
-      <div className="w-full h-96">
+      <div className="w-full h-96 mb-4">
         <Bottom/>
+      </div>
+      <div className="fixed font-mono-bold bg-bg-elevated bottom-0 w-full h-5 text-text-muted text-xs px-3 items-center tracking-widest">
+        {statusMessage}
       </div>
     </div>
   );

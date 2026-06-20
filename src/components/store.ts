@@ -11,6 +11,7 @@ interface AppState {
     selectedBranch: number
     selectedUnpushedCommit: string
     commitFileCache: Record<string, FileInfo[]>
+    statusMessage: string
     stagedFiles: FileInfo[]
 
     setRepoPath: (path: string) => void
@@ -22,6 +23,7 @@ interface AppState {
     setSelectedBranch: (index: number) => void
     setSelectedUnpushedCommit: (hash: string) => void
     setCommitFileCache: (hash: string, file: FileInfo[]) => void
+    setStatusMessage: (message: string) => void
     setStageFiles: (files: FileInfo[]) => void
 }
 
@@ -35,6 +37,7 @@ export const useStore = create<AppState>((set) => ({
     selectedBranch: 0,
     selectedUnpushedCommit: "",
     commitFileCache: {},
+    statusMessage: "",
     stagedFiles: [],
 
     setRepoPath: (path) => set({ repoPath: path }),
@@ -46,5 +49,6 @@ export const useStore = create<AppState>((set) => ({
     setSelectedBranch: (index) => set({ selectedBranch: index }),
     setSelectedUnpushedCommit: (hash) => { set({ selectedUnpushedCommit: hash}) },
     setCommitFileCache: (hash, files) => set(state => ({commitFileCache: {...state.commitFileCache, [hash]: files}})),
+    setStatusMessage: (message: string) => set({ statusMessage: message }),
     setStageFiles: (files) => set({ stagedFiles: files }),
 }))

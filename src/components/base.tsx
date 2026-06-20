@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import { get_entrys, git_unstage_all, git_add_all, get_commit_files } from "./utils/utils";
 
 export default function Base(){
-    const { pushedCommits, stagedFiles, setStageFiles, commitFileCache, setCommitFileCache } = useStore();
+    const { pushedCommits, stagedFiles, setStageFiles, commitFileCache, setCommitFileCache, setStatusMessage } = useStore();
     const [selected, setSelected] = useState<number>(0);
 
     useEffect(() => {
         pushedCommits.forEach(commit => {
             if (commitFileCache[commit.hash]) return;
+            setStatusMessage("Loading commits..")
             get_commit_files(commit.hash).then(files => {
                 setCommitFileCache(commit.hash, files);
             })
+            setStatusMessage("Loaded commits!")
         })
     },[pushedCommits])
 
@@ -21,15 +23,19 @@ export default function Base(){
     }
 
     const selectAll = async () => {
+        setStatusMessage("Selecting all staged file..");
         await git_add_all();
         const staged_files = await get_entrys();
         setStageFiles(staged_files);
+        setStatusMessage("Staged all files!");
     }
 
     const deselectAll = async () => {
+        setStatusMessage("Deselecting all files..");
         await git_unstage_all();
         const staged_files = await get_entrys();
         setStageFiles(staged_files);
+        setStatusMessage("Deselected all files!");
     }
 
     return(

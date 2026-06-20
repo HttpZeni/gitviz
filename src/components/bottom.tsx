@@ -4,21 +4,25 @@ import { UnpushedCommitItem, Button } from "./sub_components";
 import { git_push_commit, make_commit, get_unpushed_commits, get_pushed_commits } from "./utils/utils";
 
 export default function Bottom(){
-    const {unpushedCommits, setUnpushedCommits, selectedUnpushedCommit, setPushedCommits} = useStore();
+    const {unpushedCommits, setUnpushedCommits, selectedUnpushedCommit, setPushedCommits, setStatusMessage} = useStore();
     const [commitMessage, setCommitMessage] = useState<string>("");
 
     const HandleCommit = async() => {
+        setStatusMessage("Making commit..");
         await make_commit(commitMessage);
         const unpushed_commits = await get_unpushed_commits();
         setUnpushedCommits(unpushed_commits);
         setCommitMessage("");
+        setStatusMessage("Made commit!");
     }
     const HandlePush = async () => {
+        setStatusMessage("Pushing commit > " + selectedUnpushedCommit);
         await git_push_commit(selectedUnpushedCommit);
         const unpushed_commits = await get_unpushed_commits();
         const pushed_commits = await get_pushed_commits();
         setUnpushedCommits(unpushed_commits);
         setPushedCommits(pushed_commits);
+        setStatusMessage("Pushed commit > " + selectedUnpushedCommit);
     }
     const HandlePull = async () => {
 
@@ -29,8 +33,8 @@ export default function Bottom(){
     }
 
     return (
-        <div className="w-full h-full bg-bg-elevated border-t-2 shrink-0 border-border flex flex-row">
-            <div className="w-2/12 shrink-0 h-full border-r-2 border-border flex flex-col p-3 gap-2">
+        <div className="w-full h-full bg-bg-elevated border-t-2 shrink-0 border-border flex flex-row pb-1">
+            <div className="w-2/12 shrink-0 h-full border-border flex flex-col p-3 gap-2">
                 <p className="text-text-secondary">Commit | Push All | Pull</p>
                 <textarea
                     onChange={handleChange}
@@ -43,7 +47,7 @@ export default function Bottom(){
                     <Button onClick={HandlePull} value={"Pull"} width={6} height={3} fontSize={14} className="tracking-wide bg-border hover:bg-transparent" />
                 </div>
             </div>
-            <div className="w-full h-full bg-bg-surface flex flex-col gap-2 p-3 overflow-y-scroll">
+            <div className="w-full h-full rounded-bl-xl border-b-2 border-l-2 border-border bg-bg-surface flex flex-col gap-2 p-3 overflow-y-scroll">
                 <p className="text-text-secondary">Unpushed Commits</p>
                 <div>
                     {

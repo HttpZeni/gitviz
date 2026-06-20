@@ -108,3 +108,11 @@ export async function git_remove_unpushed_commit(hash: string){
     const { repoPath } = useStore.getState();
     await invoke("remove_unpushed_commit", { path: repoPath, hash: hash })
 }
+export async function git_add_all(){
+    const { repoPath } = useStore.getState();
+    await invoke("add_all", {path: repoPath});
+}
+export async function git_unstage_all(){
+    const { repoPath } = useStore.getState();
+    await invoke("unstage_all", {path: repoPath});
+}

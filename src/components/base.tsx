@@ -1,7 +1,7 @@
 import { CommitItem, Button, StageFile } from "./sub_components"
 import { useStore } from "./store";
 import { useState } from "react";
-import { get_entrys, git_add_stage, git_remove_stage } from "./utils/utils";
+import { get_entrys, git_unstage_all, git_add_all } from "./utils/utils";
 
 export default function Base(){
     const { pushedCommits, stagedFiles, setStageFiles } = useStore();
@@ -12,13 +12,13 @@ export default function Base(){
     }
 
     const selectAll = async () => {
-        await Promise.all(stagedFiles.filter(f => !f.is_staged && !f.is_ignored).map(f => git_add_stage(f)));
+        await git_add_all();
         const staged_files = await get_entrys();
         setStageFiles(staged_files);
     }
 
     const deselectAll = async () => {
-        await Promise.all(stagedFiles.filter(f => f.is_staged).map(f => git_remove_stage(f)));
+        await git_unstage_all();
         const staged_files = await get_entrys();
         setStageFiles(staged_files);
     }

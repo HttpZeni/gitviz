@@ -1,4 +1,4 @@
 export { default as Button } from "./Button"
-export { default as CommitItem } from "./commititem"
-export { default as UnpushedCommitItem } from "./unpushedcommititem"
+export { default as CommitItem } from "./CommitItem"
+export { default as UnpushedCommitItem } from "./UnpushedCommitItem"
 export { default as StageFile } from "./StageFile"

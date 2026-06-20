@@ -1,4 +1,4 @@
-use git2::{Repository};
+use git2::{IndexAddOption, Repository};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -101,6 +101,23 @@ fn is_ignored(path: &str, file_path: &str) -> Result<bool, String>{
     let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
     let ignored = repo.is_path_ignored(&file_path).map_err(|e| e.message().to_string())?;
     Ok(ignored)
+}
+
+#[tauri::command]
+fn add_all(path: &str) -> Result<(), String>{
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let mut index = repo.index().map_err(|e| e.message().to_string())?;
+    index.add_all(["*"], IndexAddOption::DEFAULT, None).map_err(|e| e.message().to_string())?;
+    index.write().map_err(|e| e.message().to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn unstage_all(path: &str) -> Result<(), String> {
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let head = repo.head().map_err(|e| e.message().to_string())?.peel_to_commit().map_err(|e| e.message().to_string())?;
+    repo.reset_default(Some(head.as_object()), ["*"]).map_err(|e| e.message().to_string())?;
+    Ok(())
 }
 
 #[tauri::command]
@@ -368,7 +385,7 @@ pub fn run() {
             is_ignored, make_commit, get_unpushed_commits,
             git_push, git_push_commit, get_pushed_commits,
             remove_unpushed_commit, undo_pushed_commit,
-            git_pull
+            git_pull, add_all, unstage_all
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useStore } from "../store"
 import { CommitInfo, FileInfo } from "../utils/types"
 import { get_commit_files, git_push_commit, git_remove_unpushed_commit, get_unpushed_commits, get_pushed_commits } from "../utils/utils";
@@ -14,13 +14,15 @@ export default function UnpushedCommitItem({ commit, isLast }: props){
     const [active, setActive] = useState<boolean>(false);
     const [files, setFiles] = useState<FileInfo[]>([]);
 
-    useEffect(() => { 
+    const hanldeClick = () => { 
+        setActive(!active);
+        if (!active) return;
         async function load(){
             const commit_files = await get_commit_files(commit.hash);
             setFiles(commit_files);
         }
         load();
-    }, [active === true])
+    }
 
     const HandlePush = async () => {
         console.log("hash:", commit.hash);
@@ -37,7 +39,7 @@ export default function UnpushedCommitItem({ commit, isLast }: props){
     }
 
     return(
-        <div onClick={() => setActive(!active)} className={`w-full bg-bg-overlay rounded-md flex flex-col overflow-hidden ${active ? "max-h-96" : "max-h-20"} gap-2 p-3 text-text-primary text-sm border-2 border-border transition-all duration-100 hover:bg-border cursor-pointer`}>
+        <div onClick={hanldeClick} className={`w-full bg-bg-overlay rounded-md flex flex-col overflow-hidden ${active ? "max-h-96" : "max-h-20"} gap-2 p-3 text-text-primary text-sm border-2 border-border transition-all duration-100 hover:bg-border cursor-pointer`}>
             <div className="h-full flex flex-row justify-between">
                 <div className="h-full flex flex-col gap-1">
                     <h1 className="text-text-primary text-md">{commit.message}</h1>

@@ -1,4 +1,4 @@
-import { commitStages, FileInfo, CommitInfo } from "./types";
+import { FileInfo, CommitInfo } from "./types";
 import { useStore } from "../store";
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
@@ -13,13 +13,13 @@ export function timeAgo(unixSeconds: number | undefined): string {
     return new Date(unixSeconds * 1000).toLocaleDateString();
 }
 
-export const stageConfig: Record<commitStages, { bg: string; text: string; short: string; label: string }> = {
-    [commitStages.NEW]: { bg: "bg-success", text: "text-success", short: "A", label: "ADDED" },
-    [commitStages.MODIFIED]: { bg: "bg-warning", text: "text-warning", short: "M", label: "MODIFIED" },
-    [commitStages.RENAMED]: { bg: "bg-warning", text: "text-warning", short: "R", label: "RENAMED" },
-    [commitStages.DELETED]: { bg: "bg-danger", text: "text-danger", short: "D", label: "DELETED" },
-    [commitStages.IGNORED]: { bg: "bg-text-muted", text: "text-text-muted", short: "I", label: "IGNORED" },
-    [commitStages.UNTRACKED]: { bg: "bg-text-muted", text: "text-text-muted", short: "U", label: "UNTRACKED" },
+export const stageConfig: Record<string, { bg: string; text: string; short: string; label: string }> = {
+    "ADDED": { bg: "bg-success", text: "text-success", short: "A", label: "ADDED" },
+    "MODIFIED": { bg: "bg-warning", text: "text-warning", short: "M", label: "MODIFIED" },
+    "RENAMED": { bg: "bg-warning", text: "text-warning", short: "R", label: "RENAMED" },
+    "DELETED": { bg: "bg-danger", text: "text-danger", short: "D", label: "DELETED" },
+    "IGNORED": { bg: "bg-text-muted", text: "text-text-muted", short: "I", label: "IGNORED" },
+    "UNTRACKED": { bg: "bg-text-muted", text: "text-text-muted", short: "U", label: "UNTRACKED" },
 };
 
 export const statusConfig: Record<string, { label: string; short: string; className: string }> = {

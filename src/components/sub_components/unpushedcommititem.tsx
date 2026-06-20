@@ -39,7 +39,7 @@ export default function UnpushedCommitItem({ commit, isLast }: props){
     }
 
     return(
-        <div onClick={hanldeClick} className={`w-full bg-bg-overlay rounded-md flex flex-col overflow-hidden ${active ? "max-h-96" : "max-h-20"} gap-2 p-3 text-text-primary text-sm border-2 border-border transition-all duration-100 hover:bg-border cursor-pointer`}>
+        <div onClick={hanldeClick} className={`w-full bg-bg-overlay rounded-md flex flex-col overflow-hidden ${active ? "max-h-96" : "max-h-20"} gap-2 p-3 text-text-primary text-sm border border-border transition-all duration-100 hover:bg-border cursor-pointer`}>
             <div className="h-full flex flex-row justify-between">
                 <div className="h-full flex flex-col gap-1">
                     <h1 className="text-text-primary text-md">{commit.message}</h1>

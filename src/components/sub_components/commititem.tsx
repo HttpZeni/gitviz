@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CommitInfo } from "../utils/types"
-import { get_commit_files, get_pushed_commits, undo_pushed_commit } from "../utils/utils";
+import { get_commit_files, get_pushed_commits, undo_pushed_commit, stageConfig } from "../utils/utils";
 import { Button } from "./index";
 import { useStore } from "../store";
 
@@ -32,7 +32,7 @@ export default function CommitItem({ commit, isFirst }: props){
     }
 
     return(
-        <div onClick={handleClick} className={`w-full bg-bg-overlay rounded-md flex flex-col overflow-hidden ${active ? "max-h-96" : "max-h-20"} gap-2 p-3 text-text-primary text-sm border-2 border-border transition-all ${!active ? "duration-0" : "duration-150"} hover:bg-border cursor-pointer`}>
+        <div onClick={handleClick} className={`w-full bg-bg-overlay rounded-md flex flex-col overflow-hidden ${active ? "max-h-96" : "max-h-20"} gap-2 p-3 text-text-primary text-sm border border-border transition-all ${!active ? "duration-0" : "duration-150"} hover:bg-border cursor-pointer`}>
             <div className="h-full flex flex-row justify-between">
                 <div className="h-full flex flex-col gap-1">
                     <h1 className="text-text-primary text-md">{commit.message}</h1>
@@ -42,7 +42,7 @@ export default function CommitItem({ commit, isFirst }: props){
                 {
                     isFirst && (
                         <div className="flex flex-row gap-2">
-                            <Button value={"<-"} onClick={HandleRemove} className="bg-danger border-danger" />
+                            <Button value={"<-"} onClick={HandleRemove} className="bg-danger border-danger hover:bg-transparent" />
                         </div>
                     )
                 }
@@ -50,11 +50,13 @@ export default function CommitItem({ commit, isFirst }: props){
             {
                 active && files.length > 0 && (
                     <div className="w-full flex flex-col gap-2">
-                        {files.map((file, i) => (
-                            <div key={i} className="text-text-primary">
-                                -{'>\t'}{file.path}
-                            </div>
-                        ))}
+                        {files.map((file, i) => {
+                            return(
+                                <div key={i} className="text-text-primary">
+                                    <p>-{'>\t'}<span className={`${stageConfig[file.status].text}`}>{stageConfig[file.status].short}</span>{'\t' + file.path}</p>
+                                </div>
+                            )
+                        })}
                     </div>
                 )
             }

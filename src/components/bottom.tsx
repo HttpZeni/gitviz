@@ -47,7 +47,7 @@ export default function Bottom(){
                     <Button onClick={HandlePull} value={"Pull"} width={6} height={3} fontSize={14} className="tracking-wide bg-border hover:bg-transparent" />
                 </div>
             </div>
-            <div className="w-full h-full rounded-bl-xl border-b-2 border-l-2 border-border bg-bg-surface flex flex-col gap-2 p-3 overflow-y-scroll">
+            <div className="w-full h-full rounded-bl-xl border-b border-l border-border bg-bg-surface flex flex-col gap-2 p-3 overflow-y-scroll">
                 <p className="text-text-secondary">Unpushed Commits</p>
                 <div>
                     {

@@ -10,7 +10,7 @@ interface props{
 }
 
 export default function UnpushedCommitItem({ commit, isLast }: props){
-    const { setUnpushedCommits, setPushedCommits } = useStore();
+    const { setUnpushedCommits, selectedUnpushedCommit, setPushedCommits, setStatusMessage } = useStore();
     const [active, setActive] = useState<boolean>(false);
     const [files, setFiles] = useState<FileInfo[]>([]);
 
@@ -25,12 +25,13 @@ export default function UnpushedCommitItem({ commit, isLast }: props){
     }
 
     const HandlePush = async () => {
-        console.log("hash:", commit.hash);
+        setStatusMessage({ message: "Pushing commit > " + selectedUnpushedCommit, destroyAuto: false });
         await git_push_commit(commit.hash);
         const unpushed_commits = await get_unpushed_commits();
         const pushed_commits = await get_pushed_commits();
         setUnpushedCommits(unpushed_commits);
         setPushedCommits(pushed_commits);
+        setStatusMessage({ message: "Pushed commit > " + selectedUnpushedCommit, destroyAuto: true });
     }
     const HandleRemove = async () => {
         await git_remove_unpushed_commit(commit.hash);

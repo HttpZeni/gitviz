@@ -52,7 +52,7 @@
 @layer base {
     * {
         scrollbar-width: thin;
-        scrollbar-color: #222222 transparent;
+        scrollbar-color: transparent transparent;
         font-family: "IosevkaTerm-Regular", monospace;
     }
 }

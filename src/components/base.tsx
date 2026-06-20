@@ -8,15 +8,13 @@ export default function Base(){
     const [selected, setSelected] = useState<number>(0);
 
     useEffect(() => {
-        pushedCommits.forEach(commit => {
-            if (commitFileCache[commit.hash]) return;
-            setStatusMessage("Loading commits..")
-            get_commit_files(commit.hash).then(files => {
-                setCommitFileCache(commit.hash, files);
-            })
-            setStatusMessage("Loaded commits!")
-        })
-    },[pushedCommits])
+        const pending = pushedCommits.filter(c => !commitFileCache[c.hash]);
+        if (pending.length === 0) return;
+        setStatusMessage("Loading commits..");
+        Promise.all(pending.map(commit =>
+            get_commit_files(commit.hash).then(files => setCommitFileCache(commit.hash, files))
+        )).then(() => setStatusMessage("Loaded commits!"));
+    }, [pushedCommits])
 
     function handleClick (index: number) {
         setSelected(index);

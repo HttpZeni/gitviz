@@ -108,8 +108,9 @@ export async function git_add_stage(entryFile: FileInfo){
     await invoke("git_add", { path: repoPath, filePath: entryFile.path });
 }
 export async function git_pull(){
-    const { repoPath, userName, token } = useStore.getState();
-    await invoke("git_pull", {path: repoPath, userName: userName, token: token})
+    const { repoPath, branches, selectedBranch, userName, token } = useStore.getState();
+    const currentBranch = branches[selectedBranch];
+    await invoke("git_pull", {path: repoPath, branch: currentBranch, username: userName, token: token})
 }
 export async function git_remove_stage(entryFile: FileInfo){
     const { repoPath } = useStore.getState();

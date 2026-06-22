@@ -13,6 +13,18 @@ export function timeAgo(unixSeconds: number | undefined): string {
     return new Date(unixSeconds * 1000).toLocaleDateString();
 }
 
+export const conventionalCommitsConfig: Record<string, { value: string; desc: string }> = {
+    'FEAT': { value: "feat:", desc: "A new feature" },
+    'FIX': { value: "fix:", desc: "Bugfix" },
+    'CHORE': { value: "chore:", desc: "maintenance task" },
+    'REFACTOR': { value: "refactor:", desc: "code restructure, no behavior change" },
+    'DOCS': { value: "docs:", desc: "documentation only" },
+    'STYLE': { value: "style:", desc: "formatting, no logic change" },
+    'TEST': { value: "test:", desc: " adding or updating tests" },
+    'PERF': { value: "perf:", desc: "performance improvement" },
+    'NONE': { value: "", desc: ""}
+}
+
 export const stageConfig: Record<string, { bg: string; text: string; short: string; label: string }> = {
     "ADDED": { bg: "bg-success", text: "text-success", short: "A", label: "ADDED" },
     "MODIFIED": { bg: "bg-warning", text: "text-warning", short: "M", label: "MODIFIED" },
@@ -94,6 +106,10 @@ export async function undo_pushed_commit(){
 export async function git_add_stage(entryFile: FileInfo){
     const { repoPath } = useStore.getState();
     await invoke("git_add", { path: repoPath, filePath: entryFile.path });
+}
+export async function git_pull(){
+    const { repoPath, userName, token } = useStore.getState();
+    await invoke("git_pull", {path: repoPath, userName: userName, token: token})
 }
 export async function git_remove_stage(entryFile: FileInfo){
     const { repoPath } = useStore.getState();

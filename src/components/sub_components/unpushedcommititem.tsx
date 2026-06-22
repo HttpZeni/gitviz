@@ -16,7 +16,7 @@ export default function UnpushedCommitItem({ commit, isLast }: props){
 
     const hanldeClick = () => { 
         setActive(!active);
-        if (!active) return;
+        if (active) return;
         async function load(){
             const commit_files = await get_commit_files(commit.hash);
             setFiles(commit_files);

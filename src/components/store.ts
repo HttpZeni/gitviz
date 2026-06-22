@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { CommitInfo, FileInfo, StatusMessage } from './utils/types'
+import { CommitInfo, FileInfo, StatusMessage, ErrorInfo } from './utils/types'
 
 interface AppState {
     repoPath: string
@@ -12,6 +12,7 @@ interface AppState {
     selectedUnpushedCommit: string
     commitFileCache: Record<string, FileInfo[]>
     statusMessage: StatusMessage
+    error: ErrorInfo
     stagedFiles: FileInfo[]
 
     setRepoPath: (path: string) => void
@@ -24,6 +25,7 @@ interface AppState {
     setSelectedUnpushedCommit: (hash: string) => void
     setCommitFileCache: (hash: string, file: FileInfo[]) => void
     setStatusMessage: (statusMessage: StatusMessage) => void
+    setError: (error: ErrorInfo) => void
     setStageFiles: (files: FileInfo[]) => void
 }
 
@@ -38,6 +40,7 @@ export const useStore = create<AppState>((set) => ({
     selectedUnpushedCommit: "",
     commitFileCache: {},
     statusMessage: { message: "", destroyAuto: false },
+    error: { error: "", files: [] },
     stagedFiles: [],
 
     setRepoPath: (path) => set({ repoPath: path }),
@@ -50,5 +53,6 @@ export const useStore = create<AppState>((set) => ({
     setSelectedUnpushedCommit: (hash) => { set({ selectedUnpushedCommit: hash}) },
     setCommitFileCache: (hash, files) => set(state => ({commitFileCache: {...state.commitFileCache, [hash]: files}})),
     setStatusMessage: (statusMessage: StatusMessage) => set({ statusMessage: {message: statusMessage.message, destroyAuto: statusMessage.destroyAuto}}),
+    setError: (errorInfo: ErrorInfo) => set({ error: { error: errorInfo.error, files: errorInfo.files }}),
     setStageFiles: (files) => set({ stagedFiles: files }),
 }))

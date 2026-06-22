@@ -10,8 +10,8 @@ interface props{
 export default function Button({ value, width = 3.5, height = 2, onClick, fontSize = 12, className}: props){
     return(
         <div onClick={onClick}
-            style={{ width: `${width}rem`, height: `${height}rem`, fontSize: `${fontSize}px` }}
-            className={`flex items-center justify-center rounded-md cursor-pointer border transition-all duration-100 border-border text-text-primary text-sm font-mono ${className}`}>
+            style={{ width: `${width}rem`, height: `${height}rem`, fontSize: `${fontSize}px` }} 
+            className={`flex shrink-0 items-center justify-center rounded-md cursor-pointer border transition-all duration-100 border-border text-text-primary text-sm font-mono ${className}`}>
             {value}
         </div>
     )

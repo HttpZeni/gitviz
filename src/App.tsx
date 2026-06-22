@@ -4,9 +4,10 @@ import { useEffect } from "react";
 import TopBar from "./components/topbar";
 import Base from "./components/base";
 import Bottom from "./components/bottom";
+import ErrorWindow from "./components/errorWindow";
 
 function App() {
-  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, setStageFiles, statusMessage, setStatusMessage, selectedBranch, setSelectedBranch } = useStore();  
+  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, setStageFiles, statusMessage, setStatusMessage, selectedBranch, setSelectedBranch, error } = useStore();  
 
   useEffect(() => {
     if (!statusMessage || !statusMessage.destroyAuto) return;
@@ -49,18 +50,27 @@ function App() {
   }, [selectedBranch])
 
   return (
-    <div className="bg-bg-base w-screen h-screen flex flex-col">
-      <div className="w-full h-16">
-        <TopBar />
-      </div>
-      <div className="w-full h-full overflow-y-scroll">
-        <Base/>
-      </div>
-      <div className="w-full h-96 mb-4">
-        <Bottom/>
-      </div>
-      <div className="fixed font-mono-bold bg-bg-elevated bottom-0 w-full h-5 text-text-muted text-xs px-3 items-center tracking-widest transition-all duration-150">
-        {statusMessage.message}
+    <div className="bg-bg-base w-screen h-screen">
+      {
+        error.error != "" && (
+          <div className="absolute w-full h-full flex items-center justify-center">
+            <ErrorWindow />
+          </div>
+        )
+      }
+      <div className={`w-full h-full flex flex-col ${error.error != "" && "blur-xs"} z-100`}>
+        <div className="w-full h-16">
+          <TopBar />
+        </div>
+        <div className="w-full h-full overflow-y-scroll">
+          <Base />
+        </div>
+        <div className="w-full h-96 mb-4">
+          <Bottom />
+        </div>
+        <div className="fixed font-mono-bold bg-bg-elevated bottom-0 w-full h-5 text-text-muted text-xs px-3 items-center tracking-widest transition-all duration-150">
+          {statusMessage.message}
+        </div>
       </div>
     </div>
   );

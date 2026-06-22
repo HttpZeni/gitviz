@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { get_entrys, git_unstage_all, git_add_all, get_commit_files } from "./utils/utils";
 
 export default function Base(){
-    const { pushedCommits, stagedFiles, setStageFiles, commitFileCache, setCommitFileCache, setStatusMessage } = useStore();
+    const { pushedCommits, stagedFiles, setStageFiles, commitFileCache, setCommitFileCache, setStatusMessage, setError } = useStore();
     const [selected, setSelected] = useState<number>(0);
 
     useEffect(() => {
@@ -22,25 +22,43 @@ export default function Base(){
 
     const selectAll = async () => {
         setStatusMessage({ message: "Selecting all staged file..", destroyAuto: false });
-        await git_add_all();
-        const staged_files = await get_entrys();
-        setStageFiles(staged_files);
-        setStatusMessage({ message: "Staged all files!", destroyAuto: true });
+        try{
+            await git_add_all();
+            const staged_files = await get_entrys();
+            setStageFiles(staged_files);
+            setStatusMessage({ message: "Staged all files!", destroyAuto: true });
+        }
+        catch(error){
+            setError({error: String(error)});
+            setStatusMessage({ message: "Faild selecting all files!", destroyAuto: true })
+        }
     }
 
     const deselectAll = async () => {
         setStatusMessage({ message: "Deselecting all files..", destroyAuto: false });
-        await git_unstage_all();
-        const staged_files = await get_entrys();
-        setStageFiles(staged_files);
-        setStatusMessage({ message: "Deselected all files!", destroyAuto: true });
+        try{
+            await git_unstage_all();
+            const staged_files = await get_entrys();
+            setStageFiles(staged_files);
+            setStatusMessage({ message: "Deselected all files!", destroyAuto: true });
+        }
+        catch(error){
+            setError({ error: String(error) });
+            setStatusMessage({ message: "Faild deselecting all files!", destroyAuto: true })
+        }
     }
 
     const update = async () => {
         setStatusMessage({ message: "Updating staged file..", destroyAuto: false });
-        const staged_files = await get_entrys();
-        setStageFiles(staged_files);
-        setStatusMessage({ message: "Updated staged files!", destroyAuto: true });
+        try{
+            const staged_files = await get_entrys();
+            setStageFiles(staged_files);
+            setStatusMessage({ message: "Updated staged files!", destroyAuto: true });
+        }
+        catch(error){
+            setError({ error: String(error) });
+            setStatusMessage({ message: "Faild to update staged files!", destroyAuto: true})
+        }
     }
 
     return(

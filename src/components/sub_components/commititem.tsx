@@ -10,7 +10,7 @@ interface props{
 }
 
 export default function CommitItem({ commit, isFirst }: props){
-    const { setPushedCommits, setSelectedUnpushedCommit, commitFileCache, setCommitFileCache } = useStore();
+    const { setPushedCommits, setSelectedUnpushedCommit, commitFileCache, setCommitFileCache, setError, setStatusMessage } = useStore();
     const [active, setActive] = useState<boolean>(false);
     const [label, setLabel] = useState<boolean>(false);
     const files = commitFileCache[commit.hash] ?? [];
@@ -20,16 +20,32 @@ export default function CommitItem({ commit, isFirst }: props){
         setSelectedUnpushedCommit(commit.hash);
         if (active || commitFileCache[commit.hash]) return;
         async function load() {
-            const commit_files = await get_commit_files(commit.hash);
-            setCommitFileCache(commit.hash, commit_files);
+            setStatusMessage({ message: "Loading commit files..", destroyAuto: false })
+            try{
+                const commit_files = await get_commit_files(commit.hash);
+                setCommitFileCache(commit.hash, commit_files);
+                setStatusMessage({ message: "Loaded commit files!", destroyAuto: true })
+            }
+            catch(error){
+                setError({ error: String(error) })
+                setStatusMessage({ message: "Failed to load commit files!", destroyAuto: true })
+            }
         }
         load();
     }
 
     const HandleRemove = async() => {
-        await undo_pushed_commit();
-        const pushed_commits = await get_pushed_commits();
-        setPushedCommits(pushed_commits);
+        setStatusMessage({ message: "Removing commit..", destroyAuto: false })
+        try{
+            await undo_pushed_commit();
+            const pushed_commits = await get_pushed_commits();
+            setPushedCommits(pushed_commits);
+            setStatusMessage({ message: "Remove commit!", destroyAuto: true })
+        }
+        catch(error){
+            setError({ error: String(error) })
+            setStatusMessage({message: "Failed to remove commit!", destroyAuto: true})
+        }
     }
 
     return(

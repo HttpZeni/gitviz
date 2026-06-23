@@ -1,4 +1,4 @@
-use git2::{IndexAddOption, Repository};
+use git2::{DiffOptions, IndexAddOption, Repository};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -369,6 +369,33 @@ fn get_commit_files(path: String, hash: String) -> Result<Vec<FileInfo>, String>
 }
 
 #[tauri::command]
+fn get_file_diffs(path: String, file_path: String) -> Result<String, String> {
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let mut opts = DiffOptions::new();
+    opts.pathspec(&file_path); // <-- das fehlte
+    let head_tree = repo.head().map_err(|e| e.message().to_string())?
+        .peel_to_tree().map_err(|e| e.message().to_string())?;
+    let diff = repo.diff_tree_to_workdir_with_index(Some(&head_tree), Some(&mut opts))
+        .map_err(|e| e.message().to_string())?;
+
+    let mut result = String::new();
+    diff.foreach(
+        &mut |_, _| true,
+        None,
+        None,
+        Some(&mut |_, _, line| {
+            if matches!(line.origin(), '+' | '-' | ' ') {
+                result.push(line.origin());
+                result.push_str(std::str::from_utf8(line.content()).unwrap_or(""));
+            }
+            true
+        }),
+    ).map_err(|e| e.message().to_string())?;
+
+    Ok(result) // kein Semikolon
+}
+
+#[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
@@ -385,7 +412,7 @@ pub fn run() {
             is_ignored, make_commit, get_unpushed_commits,
             git_push, git_push_commit, get_pushed_commits,
             remove_unpushed_commit, undo_pushed_commit,
-            git_pull, add_all, unstage_all
+            git_pull, add_all, unstage_all, get_file_diffs
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

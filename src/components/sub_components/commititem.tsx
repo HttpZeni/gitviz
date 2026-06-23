@@ -10,7 +10,7 @@ interface props{
 }
 
 export default function CommitItem({ commit, isFirst }: props){
-    const { setPushedCommits, setSelectedUnpushedCommit, commitFileCache, setCommitFileCache, setError, setStatusMessage } = useStore();
+    const { setPushedCommits, setSelectedUnpushedCommit, commitFileCache, setCommitFileCache, setError, setStatusMessage, setSelectedFile } = useStore();
     const [active, setActive] = useState<boolean>(false);
     const [label, setLabel] = useState<boolean>(false);
     const files = commitFileCache[commit.hash] ?? [];
@@ -71,7 +71,7 @@ export default function CommitItem({ commit, isFirst }: props){
                         {files.map((file, i) => {
                             return(
                                 <div key={i} className="text-text-primary hover:bg-accent-subtle/75 rounded-lg p-1 z-10">
-                                    <p>-{'>\t'}<span onClick={(e) => { e.stopPropagation(); setLabel(!label); }} className={`${stageConfig[file.status].text} px-2 hover:bg-accent/25 rounded-sm`}>{label ? stageConfig[file.status].label : stageConfig[file.status].short}</span>{'\t' + file.path}</p>
+                                    <p onClick={(e) => { e.stopPropagation(); setSelectedFile(file) }}>-{'>\t'}<span onClick={(e) => { e.stopPropagation(); setLabel(!label); }} className={`${stageConfig[file.status].text} px-2 hover:bg-accent/25 rounded-sm`}>{label ? stageConfig[file.status].label : stageConfig[file.status].short}</span>{'\t' + file.path}</p>
                                 </div>
                             )
                         })}

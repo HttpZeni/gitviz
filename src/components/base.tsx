@@ -3,11 +3,13 @@ import { useStore } from "./store";
 import { useEffect, useState } from "react";
 import { get_entrys, git_unstage_all, git_add_all, get_commit_files } from "./utils/utils";
 import Loading from "./Loading";
+import { CommitInfo } from "./utils/types";
 
 export default function Base(){
     const { pushedCommits, stagedFiles, setStageFiles, commitFileCache, setCommitFileCache, setStatusMessage, setError, selectedFile } = useStore();
     const [selected, setSelected] = useState<number>(0);
     const [loadingCommits, setLoadingCommits] = useState<boolean>(false);
+    const [selectedCommit, setSelectedCommit] = useState<CommitInfo>();
 
     useEffect(() => {
         const pending = pushedCommits.filter(c => !commitFileCache[c.hash]);
@@ -21,6 +23,8 @@ export default function Base(){
             setCommitFileCache(commit.hash, files);
         })).then(() => { setStatusMessage({ message: "Loaded commits!", destroyAuto: true }); setLoadingCommits(false); })
     }, [pushedCommits]);
+
+    useEffect(() => {console.log(selectedCommit)}, [selectedCommit])
 
     function handleClick (index: number) {
         setSelected(index);
@@ -70,8 +74,8 @@ export default function Base(){
     return(
         <div className="w-full h-full bg-bg-base px-2 pr-0 pb-0 flex flex-row gap-2 transition-all duration-100">
             {loadingCommits && (<Loading value="Loading commits, please wait :D"/>)}
-            <div className={`${selectedFile != null && selectedFile.diffs != undefined ? "w-2/3" : "w-full"} h-full`}>
-                <div className="h-16 w-full flex flex-row gap-3 items-center justify-start">
+            <div className={`${selectedFile?.diffs ? "w-2/3" : "w-full"} h-full overflow-y-auto`}>
+                <div className="h-16 w-full flex flex-row gap-3 items-center justify-start sticky top-0 bg-bg-base z-50">
                     <Button onClick={() => handleClick(0)} value="Pushed Commits" width={7} height={3} className={`${selected === 0 ? "bg-border" : "bg-transparent"} hover:bg-border`} />
                     <Button onClick={() => handleClick(1)} value="Staged Files" width={7} height={3} className={`${selected === 1 ? "bg-border" : "bg-transparent"} hover:bg-border`} />
                     {
@@ -90,7 +94,7 @@ export default function Base(){
                     {
                         selected === 0 ? (
                             pushedCommits.map((commit, i) => (
-                                <CommitItem key={i} commit={commit} isFirst={i === 0} />
+                                <CommitItem key={i} commit={commit} isFirst={i === 0} setSelectedCommit={setSelectedCommit}/>
                             ))
                         ) : (
                             stagedFiles.map((file, i) => (
@@ -102,8 +106,8 @@ export default function Base(){
             </div>
                 {
                     (
-                        <div className={`${selectedFile != null && selectedFile.diffs ? "w-1/3" : "w-0"} h-full`}>
-                            <FileDiff/>
+                    <div className={`${selectedFile?.diffs ? "w-1/3" : "w-0"} h-full sticky top-0`}>
+                            <FileDiff hash={selectedCommit?.hash ?? ""}/>
                         </div>
                     )
                 }

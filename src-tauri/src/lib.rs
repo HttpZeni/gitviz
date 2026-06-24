@@ -1,4 +1,4 @@
-use git2::{DiffOptions, IndexAddOption, Repository};
+use git2::{ IndexAddOption, Repository};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -369,30 +369,46 @@ fn get_commit_files(path: String, hash: String) -> Result<Vec<FileInfo>, String>
 }
 
 #[tauri::command]
-fn get_file_diffs(path: String, file_path: String) -> Result<String, String> {
+fn get_commit_file_diff(path: String, file_path: String, hash: String) -> Result<String, String> {
     let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
-    let mut opts = DiffOptions::new();
-    opts.pathspec(&file_path); // <-- das fehlte
-    let head_tree = repo.head().map_err(|e| e.message().to_string())?
-        .peel_to_tree().map_err(|e| e.message().to_string())?;
-    let diff = repo.diff_tree_to_workdir_with_index(Some(&head_tree), Some(&mut opts))
+    
+    let oid = git2::Oid::from_str(&hash).map_err(|e| e.message().to_string())?;
+    let commit = repo.find_commit(oid).map_err(|e| e.message().to_string())?;
+    let tree = commit.tree().map_err(|e| e.message().to_string())?;
+    let parent_tree = commit.parent(0).ok().and_then(|p| p.tree().ok());
+
+    let diff = repo
+        .diff_tree_to_tree(parent_tree.as_ref(), Some(&tree), None)
         .map_err(|e| e.message().to_string())?;
 
     let mut result = String::new();
+
     diff.foreach(
         &mut |_, _| true,
         None,
         None,
-        Some(&mut |_, _, line| {
+        Some(&mut |delta, _, line| {
+            let delta_path = delta
+                .new_file()
+                .path()
+                .or_else(|| delta.old_file().path())
+                .and_then(|p| p.to_str())
+                .unwrap_or("");
+
+            if delta_path != file_path {
+                return true;
+            }
+
             if matches!(line.origin(), '+' | '-' | ' ') {
                 result.push(line.origin());
                 result.push_str(std::str::from_utf8(line.content()).unwrap_or(""));
             }
             true
         }),
-    ).map_err(|e| e.message().to_string())?;
+    )
+    .map_err(|e| e.message().to_string())?;
 
-    Ok(result) // kein Semikolon
+    Ok(result)
 }
 
 #[tauri::command]
@@ -412,7 +428,7 @@ pub fn run() {
             is_ignored, make_commit, get_unpushed_commits,
             git_push, git_push_commit, get_pushed_commits,
             remove_unpushed_commit, undo_pushed_commit,
-            git_pull, add_all, unstage_all, get_file_diffs
+            git_pull, add_all, unstage_all, get_commit_file_diff
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

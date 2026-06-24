@@ -1,53 +1,57 @@
 import { useEffect } from "react";
 import Button from "./Button"
 import { useStore } from "../store";
-import { get_file_diffs } from "../utils/utils";
+import { get_commit_file_diffs } from "../utils/utils";
 
-export default function FileDiff(){
-    const {selectedFile, setError, setSelectedFile} = useStore();
+export default function FileDiff({ hash }: { hash: string }) {
+    const { selectedFile, setError, setSelectedFile } = useStore();
 
     useEffect(() => {
         async function load() {
             try {
-                if (selectedFile == null) return;
-                const file_diff = await get_file_diffs(selectedFile.path);
+                if (selectedFile == null || !hash) return;
+                const file_diff = await get_commit_file_diffs(selectedFile.path, hash);
                 const lines = file_diff.split('\n').filter(l => l.length > 0);
-                setSelectedFile({ ...selectedFile, diffs: lines }); 
-            }
-            catch (error) {
+                setSelectedFile({ ...selectedFile, diffs: lines });
+            } catch (error) {
                 setError({ error: String(error) });
             }
         }
         load();
-    }, [selectedFile?.path])
+    }, [selectedFile?.path, hash])
 
-    return(
-        <div>
-            {
-                selectedFile != null && selectedFile.diffs != undefined && (
-                    <div className="h-full w-full bg-bg-base font-mono">
-                        <div className="flex w-full items-center justify-end p-2">
-                            <Button onClick={() => { setSelectedFile(null) }} value={"X"} width={2} height={2} className="bg-danger border-danger hover:bg-transparent" />
-                        </div>
+    if (selectedFile == null || selectedFile.diffs == undefined) return null;
 
-                        {selectedFile != null && (
-                            selectedFile.diffs.length === 0
-                                ? <p className="text-text-primary px-2">Can't find any file changes!</p>
-                                : selectedFile.diffs.map((line, i) => {
-                                    const origin = line[0];
-                                    const cls =
-                                        origin === '+' ? 'text-green-400 bg-green-950/10' :
-                                            origin === '-' ? 'text-red-400 bg-red-950/10' :
-                                                origin === '@' ? 'text-blue-400 bg-blue-950/10' :
-                                                    'text-text-secondary';
-                                    return (
-                                        <pre key={i} className={`px-2 ${cls}`}>{line}</pre>
-                                    );
-                                })
-                        )}
-                    </div>
-                )
-            }
+    return (
+        <div className="h-full w-full bg-bg-overlay border-l border-border flex flex-col font-mono text-xs">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border shrink-0">
+                <span className="text-text-primary truncate font-mono-bold tracking-widest">{selectedFile.path}</span>
+                <Button
+                    onClick={() => setSelectedFile(null)}
+                    value="x"
+                    width={2} height={2}
+                    fontSize={18}
+                    className="bg-transparent border-danger text-text-muted hover:bg-danger "
+                />
+            </div>
+
+            <div className="overflow-y-auto flex-1">
+                {selectedFile.diffs.length === 0 ? (
+                    <p className="text-text-muted px-3 py-2">No changes found.</p>
+                ) : (
+                    selectedFile.diffs.map((line, i) => {
+                        const origin = line[0];
+                        const cls =
+                            origin === '+' ? 'text-success bg-success/5' :
+                                origin === '-' ? 'text-danger bg-danger/5' :
+                                    origin === '@' ? 'text-text-muted bg-bg-base' :
+                                        'text-text-secondary';
+                        return (
+                            <pre key={i} className={`px-3 py-px leading-5 ${cls}`}>{line}</pre>
+                        );
+                    })
+                )}
+            </div>
         </div>
-    )
+    );
 }

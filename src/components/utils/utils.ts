@@ -133,7 +133,7 @@ export async function git_unstage_all(){
     const { repoPath } = useStore.getState();
     await invoke("unstage_all", {path: repoPath});
 }
-export async function get_file_diffs(filePath: string): Promise<string>{
+export async function get_commit_file_diffs(filePath: string, commitHash: string): Promise<string>{
     const { repoPath } = useStore.getState();
-    return await invoke("get_file_diffs", {path: repoPath, filePath: filePath});
+    return await invoke("get_commit_file_diff", {path: repoPath, filePath: filePath, hash: commitHash});
 }

@@ -7,9 +7,10 @@ import { useStore } from "../store";
 interface props{
     commit: CommitInfo
     isFirst: boolean
+    setSelectedCommit: React.Dispatch<React.SetStateAction<CommitInfo | undefined>>
 }
 
-export default function CommitItem({ commit, isFirst }: props){
+export default function CommitItem({ commit, isFirst, setSelectedCommit }: props){
     const { setPushedCommits, setSelectedUnpushedCommit, commitFileCache, setCommitFileCache, setError, setStatusMessage, setSelectedFile } = useStore();
     const [active, setActive] = useState<boolean>(false);
     const [label, setLabel] = useState<boolean>(false);
@@ -18,6 +19,7 @@ export default function CommitItem({ commit, isFirst }: props){
     const handleClick = () => {
         setActive(!active);
         setSelectedUnpushedCommit(commit.hash);
+        setSelectedCommit(commit);
         if (active || commitFileCache[commit.hash]) return;
         async function load() {
             setStatusMessage({ message: "Loading commit files..", destroyAuto: false })

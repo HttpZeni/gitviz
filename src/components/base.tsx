@@ -1,36 +1,26 @@
-import { CommitItem, Button, StageFile } from "./sub_components"
+import { CommitItem, Button, StageFile, FileDiff } from "./sub_components"
 import { useStore } from "./store";
 import { useEffect, useState } from "react";
-import { get_entrys, git_unstage_all, git_add_all, get_commit_files, get_file_diffs } from "./utils/utils";
+import { get_entrys, git_unstage_all, git_add_all, get_commit_files } from "./utils/utils";
+import Loading from "./Loading";
 
 export default function Base(){
     const { pushedCommits, stagedFiles, setStageFiles, commitFileCache, setCommitFileCache, setStatusMessage, setError, selectedFile } = useStore();
     const [selected, setSelected] = useState<number>(0);
-    const [diffs, setDiffs] = useState<string[]>([]);
-
-    useEffect(() => {
-        if (selectedFile.path == "") return;
-        async function load(){
-            try{
-                let file_diff = await get_file_diffs(selectedFile.path);
-                const lines = file_diff.split('\n').filter(l => l.length > 0);
-                setDiffs(lines);
-            }
-            catch(error){
-                setError({ error: String(error) });
-            }
-        }
-        load();
-    }, [selectedFile])
+    const [loadingCommits, setLoadingCommits] = useState<boolean>(false);
 
     useEffect(() => {
         const pending = pushedCommits.filter(c => !commitFileCache[c.hash]);
         if (pending.length === 0) return;
-        setStatusMessage({message: "Loading commits..", destroyAuto: false});
-        Promise.all(pending.map(commit =>
-            get_commit_files(commit.hash).then(files => setCommitFileCache(commit.hash, files))
-        )).then(() => setStatusMessage({ message: "Loaded commits!", destroyAuto: true }));
-    }, [pushedCommits])
+        setLoadingCommits(true);
+        
+        setStatusMessage({ message: "Loading commits..", destroyAuto: false });
+
+        Promise.all(pending.map(async commit => {
+            const files = await get_commit_files(commit.hash);
+            setCommitFileCache(commit.hash, files);
+        })).then(() => { setStatusMessage({ message: "Loaded commits!", destroyAuto: true }); setLoadingCommits(false); })
+    }, [pushedCommits]);
 
     function handleClick (index: number) {
         setSelected(index);
@@ -79,7 +69,8 @@ export default function Base(){
 
     return(
         <div className="w-full h-full bg-bg-base px-2 pr-0 pb-0 flex flex-row gap-2 transition-all duration-100">
-            <div className={`${selectedFile.path == "" || diffs.length <= 0 ? "w-full" : "w-2/3"} h-full`}>
+            {loadingCommits && (<Loading value="Loading commits, please wait :D"/>)}
+            <div className={`${selectedFile != null && selectedFile.diffs != undefined ? "w-2/3" : "w-full"} h-full`}>
                 <div className="h-16 w-full flex flex-row gap-3 items-center justify-start">
                     <Button onClick={() => handleClick(0)} value="Pushed Commits" width={7} height={3} className={`${selected === 0 ? "bg-border" : "bg-transparent"} hover:bg-border`} />
                     <Button onClick={() => handleClick(1)} value="Staged Files" width={7} height={3} className={`${selected === 1 ? "bg-border" : "bg-transparent"} hover:bg-border`} />
@@ -109,28 +100,13 @@ export default function Base(){
                     }
                 </div>
             </div>
-            {
-                selectedFile.path != "" && diffs.length > 0 && (
-                    <div className="h-full w-1/3 bg-bg-elevated font-mono">
-                        <div className="flex w-full items-center justify-end p-2">
-                            <Button onClick={() => {setDiffs([])}} value={"X"} width={2} height={2} className="bg-danger border-danger hover:bg-transparent" />
+                {
+                    (
+                        <div className={`${selectedFile != null && selectedFile.diffs ? "w-1/3" : "w-0"} h-full`}>
+                            <FileDiff/>
                         </div>
-                        
-                        {diffs.map((line, i) => {
-                            const origin = line[0];
-                            const cls =
-                                origin === '+' ? 'text-green-400 bg-green-950/10' :
-                                    origin === '-' ? 'text-red-400 bg-red-950/10' :
-                                        origin === '@' ? 'text-blue-400 bg-blue-950/10' :
-                                            'text-text-secondary';
-
-                            return (
-                                <pre key={i} className={`px-2 ${cls}`} >{line}</pre>
-                            );
-                        })}
-                    </div>
-                )
-            }
+                    )
+                }
         </div>
     )
 }

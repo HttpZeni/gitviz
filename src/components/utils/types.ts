@@ -20,6 +20,7 @@ export interface ErrorInfo{
 export interface FileInfo {
     path: string,
     status: string,
+    diffs: string[],
     is_ignored: boolean,
     is_staged: boolean,
 }

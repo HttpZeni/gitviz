@@ -57,7 +57,6 @@ Requires [Rust](https://rustup.rs) and [Node.js](https://nodejs.org).
 
 ## Planned
 
-- Line-level diff view
 - Error suggestions
 - Create / delete branches
 

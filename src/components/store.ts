@@ -13,7 +13,7 @@ interface AppState {
     commitFileCache: Record<string, FileInfo[]>
     statusMessage: StatusMessage
     error: ErrorInfo
-    selectedFile: FileInfo
+    selectedFile: FileInfo | null
     stagedFiles: FileInfo[]
 
     setRepoPath: (path: string) => void
@@ -27,7 +27,7 @@ interface AppState {
     setCommitFileCache: (hash: string, file: FileInfo[]) => void
     setStatusMessage: (statusMessage: StatusMessage) => void
     setError: (error: ErrorInfo) => void
-    setSelectedFile: (fileInfo: FileInfo) => void
+    setSelectedFile: (fileInfo: FileInfo | null) => void
     setStageFiles: (files: FileInfo[]) => void
 }
 
@@ -43,7 +43,7 @@ export const useStore = create<AppState>((set) => ({
     commitFileCache: {},
     statusMessage: { message: "", destroyAuto: false },
     error: { error: "", files: [] },
-    selectedFile: {path: "", is_ignored: false, is_staged: false, status: ""},
+    selectedFile: null,
     stagedFiles: [],
 
     setRepoPath: (path) => set({ repoPath: path }),
@@ -57,6 +57,6 @@ export const useStore = create<AppState>((set) => ({
     setCommitFileCache: (hash, files) => set(state => ({commitFileCache: {...state.commitFileCache, [hash]: files}})),
     setStatusMessage: (statusMessage: StatusMessage) => set({ statusMessage: {message: statusMessage.message, destroyAuto: statusMessage.destroyAuto}}),
     setError: (errorInfo: ErrorInfo) => set({ error: { error: errorInfo.error, files: errorInfo.files }}),
-    setSelectedFile: (fileInfo: FileInfo) => set({ selectedFile: {path: fileInfo.path, status: fileInfo.status, is_ignored: fileInfo.is_ignored, is_staged: fileInfo.is_staged}}),
+    setSelectedFile: (fileInfo: FileInfo | null) => set({ selectedFile: fileInfo  }),
     setStageFiles: (files) => set({ stagedFiles: files }),
 }))

@@ -71,7 +71,6 @@ Requires [Rust](https://rustup.rs) and [Node.js](https://nodejs.org).
 
 ## Planned
 
-- Branch creation and deletion
 - Lazy commit file loading with per-commit cache
 - Settings panel (configurable commit load limit, etc.)
 - Error suggestions

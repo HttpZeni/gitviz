@@ -32,17 +32,17 @@ export default function TopBar(){
     }
 
     const hanldeDeleteBranch = async () => {
-        setStatusMessage({ message: "Deleting new branch..", destroyAuto: false });
+        setStatusMessage({ message: `Deleting ${branches[selectedBranch]}..`, destroyAuto: false });
         
         try {
             await delete_branch(branches[selectedBranch]);
             const new_branches = await get_branches();
             setBranches(new_branches);
-            setStatusMessage({ message: "Deletet new branch!", destroyAuto: true });
+            setStatusMessage({ message: `Deletet ${branches[selectedBranch]}!`, destroyAuto: true });
         }
         catch (error) {
             setError({ error: String(error) });
-            setStatusMessage({ message: "Couldn't delete new branch!", destroyAuto: true });
+            setStatusMessage({ message: `Couldn't delete branch: ${branches[selectedBranch]}!`, destroyAuto: true });
         }
     }
 
@@ -59,7 +59,7 @@ export default function TopBar(){
             <div className="w-1/3 h-full flex flex-row gap-3 items-start self-start ">
                 <Button value={get_repo_name() != "" ? get_repo_name() : "Repo path"} width={7} height={3} fontSize={12} onClick={() => handleRepoClick()} className="min-w-7 bg-transparent hover:bg-border tracking-widest self-center" />
                 <DropDown childs={[ ...branches.map((branch, i) => ({key: i, value: branch }))]} emptyText={`${branches.length > 0 ? `No other branches here than '${branches[0]}' :)` : "No branches are here :)"}`} label={branches.length > 0 ? branches[Number(selected)] : "Branches"} width={7} height={3} fontSize={12} selected={selected} setSelected={setSelect} className="bg-transparent hover:bg-border tracking-widest self-center" />
-                <input type="text" value={newBranch} onChange={handleChange} placeholder="Branch name here :)" className="ml-5 outline-none border border-border rounded-md bg-bg-overlay transition-all duration-100 h-full px-2 text-text-primary text-md" />
+                <input type="text" value={newBranch} onChange={handleChange} onKeyDown={(e) => e.key === "Enter" && handleBranchClick()} placeholder="Branch name here :)" className="ml-5 outline-none border border-border rounded-md bg-bg-overlay transition-all duration-100 h-full px-2 text-text-primary text-md" />
                 <Button value="Add Branch" width={7} height={3} fontSize={12} onClick={() => handleBranchClick()} className="min-w-7 bg-transparent hover:bg-border tracking-widest self-center" />
                 <AreYouSure value={`Delete branch: ${branches[selectedBranch]} > `} onClick={hanldeDeleteBranch} trigger={<Button value="Delete Branch" width={7} height={3} fontSize={12} onClick={() => { }} className="min-w-7 bg-transparent hover:bg-border tracking-widest self-center" />}/>
             </div>

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { CommitInfo, FileInfo, StatusMessage, ErrorInfo } from './utils/types'
+import { CommitInfo, FileInfo, StatusMessage, ErrorInfo, SettingsInfo } from './utils/types'
 
 interface AppState {
     repoPath: string
@@ -14,6 +14,8 @@ interface AppState {
     statusMessage: StatusMessage
     error: ErrorInfo
     selectedFile: FileInfo | null
+    openSettings: boolean
+    settingsInfos: SettingsInfo
     stagedFiles: FileInfo[]
 
     setRepoPath: (path: string) => void
@@ -28,6 +30,8 @@ interface AppState {
     setStatusMessage: (statusMessage: StatusMessage) => void
     setError: (error: ErrorInfo) => void
     setSelectedFile: (fileInfo: FileInfo | null) => void
+    setOpenSettings: (bool: boolean) => void
+    setSettingsInfos: (settingsInfo: SettingsInfo) => void
     setStageFiles: (files: FileInfo[]) => void
 }
 
@@ -44,6 +48,8 @@ export const useStore = create<AppState>((set) => ({
     statusMessage: { message: "", destroyAuto: false },
     error: { error: "", files: [] },
     selectedFile: null,
+    openSettings: false,
+    settingsInfos: { commitCacheSize: 50, commitLimit: 50, lazyLoading: false },
     stagedFiles: [],
 
     setRepoPath: (path) => set({ repoPath: path }),
@@ -58,5 +64,7 @@ export const useStore = create<AppState>((set) => ({
     setStatusMessage: (statusMessage: StatusMessage) => set({ statusMessage: {message: statusMessage.message, destroyAuto: statusMessage.destroyAuto}}),
     setError: (errorInfo: ErrorInfo) => set({ error: { error: errorInfo.error, files: errorInfo.files }}),
     setSelectedFile: (fileInfo: FileInfo | null) => set({ selectedFile: fileInfo  }),
+    setOpenSettings: (bool: boolean) => set( {openSettings: bool} ),
+    setSettingsInfos: ( settingsInfo: SettingsInfo ) => set({ settingsInfos: settingsInfo}),
     setStageFiles: (files) => set({ stagedFiles: files }),
 }))

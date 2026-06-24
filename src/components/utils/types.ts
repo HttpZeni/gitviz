@@ -12,6 +12,12 @@ export const conventionalCommits: string[] = [
     'NONE' 
 ]
 
+export interface SettingsInfo{
+    commitLimit: number
+    commitCacheSize: number
+    lazyLoading: boolean
+}
+
 export interface ErrorInfo{
     error: string,
     files?: FileInfo[],

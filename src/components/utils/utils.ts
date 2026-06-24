@@ -74,17 +74,17 @@ export async function get_branches(): Promise<string[]>{
     return await invoke<string[]>("get_branches", { path: repoPath });
 }
 export async function get_pushed_commits(): Promise<CommitInfo[]>{
-    const { repoPath } = useStore.getState();
-    return await invoke<CommitInfo[]>("get_pushed_commits", { path: repoPath, branch: get_inital_branch() });
+    const { repoPath, settingsInfos  } = useStore.getState();
+    return await invoke<CommitInfo[]>("get_pushed_commits", { path: repoPath, branch: get_inital_branch(), commitLimit: settingsInfos.commitLimit });
 }
 export async function get_unpushed_commits(): Promise<CommitInfo[]>{
     const { repoPath } = useStore.getState();
     return await invoke<CommitInfo[]>("get_unpushed_commits", { path: repoPath, branch: get_inital_branch() });
 }
 export async function get_commits_with_branch(): Promise<CommitInfo[]>{
-    const { repoPath, branches, selectedBranch } = useStore.getState();
+    const { repoPath, branches, selectedBranch, settingsInfos } = useStore.getState();
     const currentBranch = branches[selectedBranch];
-    return await invoke<CommitInfo[]>("get_commits_with_branch", { path: repoPath, branch: currentBranch });
+    return await invoke<CommitInfo[]>("get_commits_with_branch", { path: repoPath, branch: currentBranch, commitLimit: settingsInfos.commitLimit });
 }
 export async function get_entrys(): Promise<FileInfo[]>{
     const { repoPath } = useStore.getState();

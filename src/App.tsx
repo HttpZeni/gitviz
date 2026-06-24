@@ -5,9 +5,10 @@ import TopBar from "./components/topbar";
 import Base from "./components/base";
 import Bottom from "./components/bottom";
 import ErrorWindow from "./components/errorWindow";
+import Settings from "./components/settings";
 
 function App() {
-  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, branches, setStageFiles, statusMessage, setStatusMessage, selectedBranch, setSelectedBranch, error } = useStore();  
+  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, branches, setStageFiles, statusMessage, setStatusMessage, selectedBranch, setSelectedBranch, error, openSettings } = useStore();  
 
   useEffect(() => {
     if (!statusMessage || !statusMessage.destroyAuto) return;
@@ -51,6 +52,7 @@ function App() {
 
   return (
     <div className="bg-bg-base w-screen h-screen">
+      <Settings/>
       {
         error.error != "" && (
           <div className="absolute w-full h-full flex items-center justify-center">
@@ -58,7 +60,7 @@ function App() {
           </div>
         )
       }
-      <div className={`w-full h-full flex flex-col ${error.error != "" && "blur-xs"} z-100`}>
+      <div className={`w-full h-full flex flex-col ${error.error != "" || openSettings && "blur-xs"} z-100`}>
         <div className="w-full h-16">
           <TopBar />
         </div>

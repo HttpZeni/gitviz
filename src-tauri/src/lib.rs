@@ -157,7 +157,7 @@ fn get_branches(path: String) -> Result<Vec<String>, String>{
 }
 
 #[tauri::command]
-fn get_commits_with_branch(path: String, branch: String) -> Result<Vec<CommitInfo>, String> {
+fn get_commits_with_branch(path: String, branch: String, commit_limit: usize) -> Result<Vec<CommitInfo>, String> {
     let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
     let branch = repo.find_branch(&branch, git2::BranchType::Local).map_err(|e| e.message().to_string())?;
     let commit = branch.get().peel_to_commit().map_err(|e| e.message().to_string())?;
@@ -165,7 +165,7 @@ fn get_commits_with_branch(path: String, branch: String) -> Result<Vec<CommitInf
     revwalk.push(commit.id()).map_err(|e| e.message().to_string())?;
 
     let commits = revwalk
-        .take(50)
+        .take(commit_limit)
         .filter_map(|oid| {
             let oid = oid.ok()?;
             let hash = oid.to_string();
@@ -247,7 +247,7 @@ fn undo_pushed_commit(path: String, branch: String, username: String, token: Str
 }
 
 #[tauri::command]
-fn get_pushed_commits(path: String, branch: String) -> Result<Vec<CommitInfo>, String> {
+fn get_pushed_commits(path: String, branch: String, commit_limit: usize) -> Result<Vec<CommitInfo>, String> {
     let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
     let remote_ref = format!("origin/{}", branch);
     let remote = repo.revparse_single(&remote_ref).map_err(|e| e.message().to_string())?;
@@ -255,7 +255,7 @@ fn get_pushed_commits(path: String, branch: String) -> Result<Vec<CommitInfo>, S
     revwalk.push(remote.id()).map_err(|e| e.message().to_string())?;
 
     let commits = revwalk
-        .take(50)
+        .take(commit_limit)
         .filter_map(|oid| {
             let oid = oid.ok()?;
             let hash = oid.to_string();
@@ -309,13 +309,13 @@ fn make_commit(path: String, message: String) -> Result<(), String>{
 }
 
 #[tauri::command]
-fn get_commits(path: String) -> Result<Vec<CommitInfo>, String> {
+fn get_commits(path: String, commit_limit: usize) -> Result<Vec<CommitInfo>, String> {
     let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
     let mut revwalk = repo.revwalk().map_err(|e| e.message().to_string())?;
     revwalk.push_head().map_err(|e| e.message().to_string())?;
 
     let commits = revwalk
-        .take(50)
+        .take(commit_limit)
         .filter_map(|oid| {
             let oid = oid.ok()?;
             let hash = oid.to_string();

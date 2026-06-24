@@ -4,7 +4,7 @@ import { useStore } from "./store"
 import { useEffect, useState } from "react";
 
 export default function TopBar(){
-    const { branches, unpushedCommits, pushedCommits, stagedFiles, setSelectedBranch, selectedBranch, setError, setStatusMessage, setBranches } = useStore();
+    const { branches, unpushedCommits, pushedCommits, stagedFiles, setSelectedBranch, selectedBranch, setError, setStatusMessage, setBranches, setOpenSettings, openSettings } = useStore();
     const [selected, setSelect] = useState<number | string>(0);
     const [newBranch, setNewBranch] = useState<string>("");
 
@@ -69,6 +69,7 @@ export default function TopBar(){
                 <p className="text-sm text-text-secondary self-center">Pushed Commits {'>'} {pushedCommits.length}</p>
                 <p className="text-sm text-text-secondary self-center">Staged Files {'>'} {stagedFiles.length}</p>
                 <p className="text-sm text-text-secondary self-center">Staged Files Added {'>'} {stagedFiles.filter(f => f.is_staged).length}</p>
+                <Button value="⚙" fontSize={40} width={2.5} height={2.5} onClick={() => setOpenSettings(!openSettings)} className="bg-transparent border-transparent hover:bg-border"/>
             </div>
         </div>
     )

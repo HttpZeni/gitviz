@@ -34,10 +34,9 @@ Head to [Releases](../../releases) and download the latest installer for your pl
 
 ## Usage
 
-1. Click the folder icon in the top bar to open a repository
-2. Enter your GitHub username and personal access token in the credential fields
-3. Stage files from the working tree, write a commit message, and commit
-4. Push, pull, or manage commits from the commit panels
+1. Click the button on the top left to open a repository
+2. Stage files from the working tree, write a commit message, and commit
+3. Push, pull, or manage commits from the commit panels
 
 > A GitHub personal access token with `repo` scope is required for push and pull.
 

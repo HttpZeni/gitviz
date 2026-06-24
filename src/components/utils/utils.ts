@@ -137,3 +137,11 @@ export async function get_commit_file_diffs(filePath: string, commitHash: string
     const { repoPath } = useStore.getState();
     return await invoke("get_commit_file_diff", {path: repoPath, filePath: filePath, hash: commitHash});
 }
+export async function delete_branch(branch: string){
+    const { repoPath } = useStore.getState();
+    return await invoke("delete_branch", {path: repoPath, name: branch});
+}
+export async function create_branch(branch: string){
+    const { repoPath } = useStore.getState();
+    return await invoke("create_branch", {path: repoPath, name: branch});
+}

@@ -412,6 +412,24 @@ fn get_commit_file_diff(path: String, file_path: String, hash: String) -> Result
 }
 
 #[tauri::command]
+fn create_branch(path: String, name: String) -> Result<(), String> {
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let head = repo.head().map_err(|e| e.message().to_string())?
+        .peel_to_commit().map_err(|e| e.message().to_string())?;
+    repo.branch(&name, &head, false).map_err(|e| e.message().to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn delete_branch(path: String, name: String) -> Result<(), String> {
+    let repo = Repository::open(&path).map_err(|e| e.message().to_string())?;
+    let mut branch = repo.find_branch(&name, git2::BranchType::Local)
+        .map_err(|e| e.message().to_string())?;
+    branch.delete().map_err(|e| e.message().to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
@@ -428,7 +446,8 @@ pub fn run() {
             is_ignored, make_commit, get_unpushed_commits,
             git_push, git_push_commit, get_pushed_commits,
             remove_unpushed_commit, undo_pushed_commit,
-            git_pull, add_all, unstage_all, get_commit_file_diff
+            git_pull, add_all, unstage_all, get_commit_file_diff,
+            create_branch, delete_branch
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

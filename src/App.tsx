@@ -7,7 +7,7 @@ import Bottom from "./components/bottom";
 import ErrorWindow from "./components/errorWindow";
 
 function App() {
-  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, setStageFiles, statusMessage, setStatusMessage, selectedBranch, setSelectedBranch, error } = useStore();  
+  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, branches, setStageFiles, statusMessage, setStatusMessage, selectedBranch, setSelectedBranch, error } = useStore();  
 
   useEffect(() => {
     if (!statusMessage || !statusMessage.destroyAuto) return;
@@ -47,7 +47,7 @@ function App() {
     }
     load();
     setStatusMessage({ message: "Updated everything!", destroyAuto: true });
-  }, [selectedBranch])
+  }, [selectedBranch, branches])
 
   return (
     <div className="bg-bg-base w-screen h-screen">

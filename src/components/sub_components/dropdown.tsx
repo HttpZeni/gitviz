@@ -1,8 +1,13 @@
-import { useRef, useState } from "react"
+import { ReactNode, useRef, useState } from "react"
 import useClickOutside from "./ClickOutside"
 
+interface Child {
+    key: number | string;
+    value: ReactNode;
+}
+
 interface props {
-    childs: { key: number | string, value: string }[]
+    childs: Child[]
     label: string
     width?: number
     height?: number
@@ -21,7 +26,7 @@ export default function DropDown({ childs, label, width = 3.5, height = 2, fontS
     const [active, setActive] = useState<boolean>(false);
     useClickOutside(ref, () => setActive(false)); 
     return(
-        <div ref={ref} className="relative z-50 shrink-0">
+        <div ref={ref} className="relative z-100 shrink-0">
             <div onClick={() => setActive(!active)}
                 style={{ width: `${width}rem`, height: `${height}rem`, fontSize: `${fontSize}px` }}
                 className={`px-1 flex items-center justify-center rounded-md cursor-pointer ${active ? down ? "border-b-0 rounded-b-none" : "border-t-0 rounded-t-none" : "rounded-lg"} border transition-all duration-100 border-border text-text-primary text-sm font-mono ${className} z-50`}>

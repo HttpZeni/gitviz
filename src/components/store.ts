@@ -33,6 +33,8 @@ interface AppState {
     setOpenSettings: (bool: boolean) => void
     setSettingsInfos: (settingsInfo: SettingsInfo) => void
     setStageFiles: (files: FileInfo[]) => void
+
+    clearCommitFileCache: () => void
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -67,4 +69,6 @@ export const useStore = create<AppState>((set) => ({
     setOpenSettings: (bool: boolean) => set( {openSettings: bool} ),
     setSettingsInfos: ( settingsInfo: SettingsInfo ) => set({ settingsInfos: settingsInfo}),
     setStageFiles: (files) => set({ stagedFiles: files }),
+
+    clearCommitFileCache: () => set({ commitFileCache: {} }),
 }))

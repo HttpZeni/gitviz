@@ -3,17 +3,21 @@ import { useStore } from "./store"
 import { Button } from "./sub_components";
 
 export default function Settings() {
-    const { openSettings, setOpenSettings, userName, setUserName, token, setToken } = useStore();
+    const { openSettings, setOpenSettings, userName, setUserName, token, setToken, settingsInfos, setSettingsInfos } = useStore();
     const [commitLimit, setCommitLimit] = useState<number>(50);
     const [commitCacheSize, setCommitCacheSize] = useState<number>(50);
     const [lazyLoading, setLazyLoading] = useState<boolean>(false);
     
 
     const handleCommitLimit = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setCommitLimit(Number(e.target.value));
+        const value = Number(e.target.value);
+        setCommitLimit(value);
+        setSettingsInfos({...settingsInfos, commitLimit: value});
     }
     const handleCommitCacheSize = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setCommitCacheSize(Number(e.target.value));
+        const value = Number(e.target.value);
+        setCommitCacheSize(value);
+        setSettingsInfos({ ...settingsInfos, commitCacheSize: value });
     }
     const handleUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUserName(e.target.value);
@@ -35,11 +39,11 @@ export default function Settings() {
                         <div className="w-full h-54 pl-15 text-text-secondary flex flex-col gap-5">
                             <div className="w-full h-10 items-center flex flex-row gap-5">
                                 <p>Commit limit {'>'}</p>
-                                <input type="number" onChange={handleCommitLimit} value={commitLimit} onKeyDown={() => {}} placeholder="50" className="h-full w-12 outline-none border border-border rounded-md bg-bg-surface transition-all duration-100 px-2 text-text-primary text-md" />
+                                <input type="number" onChange={handleCommitLimit} value={commitLimit} onKeyDown={() => { }} onWheel={(e) => e.preventDefault()} placeholder="50" className="h-full w-12 outline-none border border-border rounded-md bg-bg-surface transition-all duration-100 px-2 text-text-primary text-md" />
                                 <p className="ml-15">Cache size {'>'}</p>
                                 <input type="number" onChange={handleCommitCacheSize} value={commitCacheSize} onKeyDown={() => { }} placeholder="50" className="h-full w-12 outline-none border border-border rounded-md bg-bg-surface transition-all duration-100 px-2 text-text-primary text-md" />
                                 <p className="ml-15">Lazy Loading {'>'}</p>
-                                <Button value={`${lazyLoading ? "✔" : "✖"}`} width={2.5} height={2.5} onClick={() => setLazyLoading(!lazyLoading)} fontSize={22} className={`border text-text-muted ${lazyLoading ? "bg-success border-success" : "bg-danger border-danger"} hover:bg-transparent hover:text-text-primary`}/>
+                                <Button value={`${lazyLoading ? "✔" : "✖"}`} width={2.5} height={2.5} onClick={() => {setLazyLoading(!lazyLoading); setSettingsInfos({...settingsInfos, lazyLoading: !lazyLoading})}} fontSize={22} className={`border text-text-muted ${lazyLoading ? "bg-success border-success" : "bg-danger border-danger"} hover:bg-transparent hover:text-text-primary`}/>
                             </div>
                         </div>
                         <h1 className="text-text-primary text-2xl">Remote:</h1>

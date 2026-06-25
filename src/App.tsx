@@ -8,7 +8,7 @@ import ErrorWindow from "./components/errorWindow";
 import Settings from "./components/settings";
 
 function App() {
-  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, branches, setStageFiles, statusMessage, setStatusMessage, selectedBranch, setSelectedBranch, error, openSettings } = useStore();  
+  const { repoPath, setUnpushedCommits, setPushedCommits, setBranches, branches, setStageFiles, statusMessage, setStatusMessage, selectedBranch, setSelectedBranch, error, openSettings, settingsInfos } = useStore();  
 
   useEffect(() => {
     if (!statusMessage || !statusMessage.destroyAuto) return;
@@ -49,6 +49,10 @@ function App() {
     load();
     setStatusMessage({ message: "Updated everything!", destroyAuto: true });
   }, [selectedBranch, branches])
+
+  useEffect(() => {
+    console.log(settingsInfos);
+  }, [settingsInfos])
 
   return (
     <div className="bg-bg-base w-screen h-screen">
